@@ -30,9 +30,15 @@ export class Game {
     setupCanvas() {
         // Set canvas size (adjust based on screen)
         const isMobile = window.innerWidth < 768;
-        const size = isMobile ? Math.min(window.innerWidth, window.innerHeight) - 20 : 800;
-        this.canvas.width = size;
-        this.canvas.height = size;
+        if (isMobile) {
+            const size = Math.min(window.innerWidth, window.innerHeight) - 20;
+            this.canvas.width = size;
+            this.canvas.height = size;
+        } else {
+            // Desktop: size to fit labyrinth (40x40 tiles at 16px = 640px)
+            this.canvas.width = 640;
+            this.canvas.height = 640;
+        }
     }
     
     async start(isNewGame) {
@@ -41,6 +47,9 @@ export class Game {
         } else {
             await this.loadGame();
         }
+        
+        // Recalculate viewport after canvas is sized
+        this.renderer.recalculateViewport();
         
         this.gameRunning = true;
         this.gameLoop();

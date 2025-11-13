@@ -41,6 +41,11 @@ export class Renderer {
         this.viewportHeight = Math.floor(this.canvas.height / this.tileSize);
     }
     
+    recalculateViewport() {
+        this.calculateViewport();
+        this.isMobile = window.innerWidth <= 768;
+    }
+    
     render(labyrinth, player, enemies, items) {
         if (!labyrinth || !player) return;
         
