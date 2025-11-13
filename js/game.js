@@ -101,8 +101,64 @@ export class Game {
     }
     
     spawnEnemies() {
-        // TODO: Implement enemy spawning based on floor difficulty
-        this.enemies = [];
+        import('./entities/enemy.js').then(module => {
+            const { Enemy } = module;
+            
+            this.enemies = [];
+            
+            // Get all floor tiles for spawning
+            const floorTiles = [];
+            for (let y = 0; y < this.labyrinth.height; y++) {
+                for (let x = 0; x < this.labyrinth.width; x++) {
+                    const tile = this.labyrinth.getTile(x, y);
+                    if (tile === 0 || tile === 2) { // Floor or start (not exit)
+                        // Don't spawn too close to player
+                        const dist = Math.abs(x - this.player.x) + Math.abs(y - this.player.y);
+                        if (dist > 8) {
+                            floorTiles.push({ x, y });
+                        }
+                    }
+                }
+            }
+            
+            // Calculate enemy count based on floor
+            const baseCount = 3 + this.floor;
+            const enemyCount = Math.min(baseCount, Math.floor(floorTiles.length * 0.15));
+            
+            // Spawn enemies
+            for (let i = 0; i < enemyCount; i++) {
+                if (floorTiles.length === 0) break;
+                
+                const idx = Math.floor(Math.random() * floorTiles.length);
+                const pos = floorTiles.splice(idx, 1)[0];
+                
+                // Choose enemy type based on floor
+                const type = this.chooseEnemyType();
+                
+                const enemy = new Enemy(pos.x, pos.y, type, this.floor);
+                this.enemies.push(enemy);
+            }
+            
+            console.log(`Spawned ${this.enemies.length} enemies on floor ${this.floor}`);
+        });
+    }
+    
+    chooseEnemyType() {
+        const roll = Math.random() * 100;
+        
+        // Floor-based type distribution
+        if (this.floor < 3) {
+            return roll < 80 ? 'walker' : 'archer';
+        } else if (this.floor < 6) {
+            if (roll < 50) return 'walker';
+            if (roll < 85) return 'archer';
+            return 'mage';
+        } else {
+            if (roll < 40) return 'walker';
+            if (roll < 70) return 'archer';
+            if (roll < 90) return 'mage';
+            return 'protector';
+        }
     }
     
     spawnItems() {
@@ -173,13 +229,17 @@ export class Game {
         const damage = Math.max(1, this.player.atk - enemy.def);
         enemy.hp -= damage;
         
-        console.log(`Player deals ${damage} damage to enemy`);
+        // Show damage number
+        this.renderer.showDamageNumber(enemy.x, enemy.y, damage, '#ff4444');
+        
+        console.log(`Player deals ${damage} damage to ${enemy.type}`);
         
         // Enemy retaliates if alive
         if (enemy.hp > 0) {
             const retaliation = Math.max(1, enemy.atk - this.player.def);
             this.player.takeDamage(retaliation);
-            console.log(`Enemy retaliates for ${retaliation} damage`);
+            this.renderer.showDamageNumber(this.player.x, this.player.y, retaliation, '#ffaa00');
+            console.log(`${enemy.type} retaliates for ${retaliation} damage`);
         } else {
             this.killEnemy(enemy);
         }
@@ -203,9 +263,12 @@ export class Game {
         // Process enemy turns
         this.enemies.forEach(enemy => {
             if (enemy.hp > 0) {
-                enemy.takeTurn(this.player, this.labyrinth);
+                enemy.takeTurn(this.player, this.labyrinth, this.enemies);
             }
         });
+        
+        // Remove dead enemies
+        this.enemies = this.enemies.filter(e => e.hp > 0);
         
         // Check win/loss conditions
         if (this.player.hp <= 0) {

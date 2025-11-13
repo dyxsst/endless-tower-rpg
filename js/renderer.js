@@ -17,6 +17,9 @@ export class Renderer {
         // Border for camera movement (tiles from edge)
         this.cameraBorder = 5;
         
+        // Damage numbers
+        this.damageNumbers = [];
+        
         // Colors
         this.colors = {
             wall: '#333',
@@ -69,6 +72,52 @@ export class Renderer {
         
         // Render player
         this.renderPlayer(player, offsetX, offsetY);
+        
+        // Render damage numbers
+        this.renderDamageNumbers(offsetX, offsetY);
+    }
+    
+    showDamageNumber(x, y, amount, color) {
+        this.damageNumbers.push({
+            x: x,
+            y: y,
+            amount: amount,
+            color: color,
+            life: 1.0,
+            offsetY: 0
+        });
+    }
+    
+    renderDamageNumbers(offsetX, offsetY) {
+        // Update and render damage numbers
+        for (let i = this.damageNumbers.length - 1; i >= 0; i--) {
+            const dmg = this.damageNumbers[i];
+            
+            // Update
+            dmg.life -= 0.02;
+            dmg.offsetY -= 0.5;
+            
+            if (dmg.life <= 0) {
+                this.damageNumbers.splice(i, 1);
+                continue;
+            }
+            
+            // Render
+            const screenX = (dmg.x + offsetX) * this.tileSize + this.tileSize / 2;
+            const screenY = (dmg.y + offsetY) * this.tileSize + dmg.offsetY;
+            
+            this.ctx.save();
+            this.ctx.globalAlpha = dmg.life;
+            this.ctx.fillStyle = dmg.color;
+            this.ctx.font = 'bold 14px monospace';
+            this.ctx.textAlign = 'center';
+            this.ctx.textBaseline = 'middle';
+            this.ctx.strokeStyle = '#000';
+            this.ctx.lineWidth = 3;
+            this.ctx.strokeText(`-${dmg.amount}`, screenX, screenY);
+            this.ctx.fillText(`-${dmg.amount}`, screenX, screenY);
+            this.ctx.restore();
+        }
     }
     
     updateCamera(player) {

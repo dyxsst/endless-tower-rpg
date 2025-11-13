@@ -45,23 +45,54 @@ export class Enemy {
         return stat;
     }
     
-    takeTurn(player, labyrinth) {
+    takeTurn(player, labyrinth, allEnemies) {
+        // Check if adjacent to player (attack instead of moving)
+        const distToPlayer = Math.abs(this.x - player.x) + Math.abs(this.y - player.y);
+        
+        if (distToPlayer === 1) {
+            // Already adjacent, attack
+            const damage = Math.max(1, this.atk - player.def);
+            player.takeDamage(damage);
+            console.log(`${this.type} attacks player for ${damage} damage`);
+            return;
+        }
+        
         // Simple AI: move towards player
-        const dx = Math.sign(player.x - this.x);
-        const dy = Math.sign(player.y - this.y);
+        let moveX = 0;
+        let moveY = 0;
         
-        // Try to move
-        const newX = this.x + dx;
-        const newY = this.y + dy;
+        // Decide primary direction
+        const dx = player.x - this.x;
+        const dy = player.y - this.y;
         
-        if (!labyrinth.isWall(newX, newY)) {
+        if (Math.abs(dx) > Math.abs(dy)) {
+            moveX = Math.sign(dx);
+        } else {
+            moveY = Math.sign(dy);
+        }
+        
+        // Try primary direction
+        const newX = this.x + moveX;
+        const newY = this.y + moveY;
+        
+        // Check if position is valid and not occupied by another enemy
+        const blocked = labyrinth.isWall(newX, newY) || 
+                       allEnemies.some(e => e !== this && e.hp > 0 && e.x === newX && e.y === newY);
+        
+        if (!blocked && !(newX === player.x && newY === player.y)) {
             this.x = newX;
             this.y = newY;
+        } else {
+            // Try alternate direction
+            const altX = this.x + (moveX === 0 ? Math.sign(dx) : 0);
+            const altY = this.y + (moveY === 0 ? Math.sign(dy) : 0);
             
-            // If now adjacent to player, attack
-            if (Math.abs(this.x - player.x) + Math.abs(this.y - player.y) === 0) {
-                const damage = Math.max(1, this.atk - player.def);
-                player.takeDamage(damage);
+            const altBlocked = labyrinth.isWall(altX, altY) || 
+                              allEnemies.some(e => e !== this && e.hp > 0 && e.x === altX && e.y === altY);
+            
+            if (!altBlocked && !(altX === player.x && altY === player.y)) {
+                this.x = altX;
+                this.y = altY;
             }
         }
     }
