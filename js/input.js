@@ -14,27 +14,31 @@ export class InputHandler {
     setupTouch() {
         let touchStartX = 0;
         let touchStartY = 0;
+        let touchStartTarget = null;
         
-        // Listen on document for better mobile support
-        document.addEventListener('touchstart', (e) => {
+        // Get canvas element for targeted touch handling
+        const canvas = document.getElementById('game-canvas');
+        
+        // Listen on canvas for swipe gestures
+        canvas.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
             touchStartX = touch.clientX;
             touchStartY = touch.clientY;
-        }, { passive: false });
+            touchStartTarget = e.target;
+        }, { passive: true });
         
-        document.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-        }, { passive: false });
-        
-        document.addEventListener('touchend', (e) => {
+        canvas.addEventListener('touchend', (e) => {
             if (!this.game.gameRunning) return;
+            
+            // Only process if touch started and ended on canvas
+            if (touchStartTarget !== canvas) return;
             
             const touch = e.changedTouches[0];
             const dx = touch.clientX - touchStartX;
             const dy = touch.clientY - touchStartY;
             
             // Determine swipe direction
-            const threshold = 20;
+            const threshold = 30;
             if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
                 if (Math.abs(dx) > Math.abs(dy)) {
                     // Horizontal swipe
@@ -55,7 +59,7 @@ export class InputHandler {
                 // Tap (wait turn)
                 this.game.playerAction({ type: 'wait' });
             }
-        }, { passive: false });
+        }, { passive: true });
         
         this.addTouchButtons();
     }
