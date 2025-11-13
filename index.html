@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <title>Endless Tower RPG</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/png" href="assets/icon-192.png">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="ui-overlay">
+            <div id="stats-panel">
+                <div class="stat-row">
+                    <span class="stat-label">Floor:</span>
+                    <span id="floor-number">1</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">HP:</span>
+                    <span id="player-hp">100/100</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">XP:</span>
+                    <span id="player-xp">0</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Gold:</span>
+                    <span id="player-gold">0</span>
+                </div>
+            </div>
+            
+            <div id="controls-help">
+                <p>Arrow Keys / WASD: Move</p>
+                <p>Space: Wait Turn</p>
+                <p>R: Ranged Attack</p>
+                <p>M: Magic Menu</p>
+            </div>
+        </div>
+        
+        <div id="menu-overlay" class="hidden">
+            <div id="menu-content">
+                <h2>Menu</h2>
+                <button id="resume-btn">Resume</button>
+                <button id="inventory-btn">Inventory</button>
+                <button id="stats-btn">Stats</button>
+                <button id="save-btn">Save Game</button>
+                <button id="quit-btn">Quit to Title</button>
+            </div>
+        </div>
+        
+        <div id="title-screen">
+            <h1>Endless Tower RPG</h1>
+            <div class="title-buttons">
+                <button id="new-game-btn" class="title-btn">New Game</button>
+                <button id="continue-btn" class="title-btn">Continue</button>
+                <button id="settings-btn" class="title-btn">Settings</button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
