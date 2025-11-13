@@ -12,25 +12,29 @@ export class InputHandler {
     }
     
     setupTouch() {
-        const canvas = this.game.canvas;
         let touchStartX = 0;
         let touchStartY = 0;
         
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
+        // Listen on document for better mobile support
+        document.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
             touchStartX = touch.clientX;
             touchStartY = touch.clientY;
-        });
+        }, { passive: false });
         
-        canvas.addEventListener('touchend', (e) => {
+        document.addEventListener('touchmove', (e) => {
             e.preventDefault();
+        }, { passive: false });
+        
+        document.addEventListener('touchend', (e) => {
+            if (!this.game.gameRunning) return;
+            
             const touch = e.changedTouches[0];
             const dx = touch.clientX - touchStartX;
             const dy = touch.clientY - touchStartY;
             
             // Determine swipe direction
-            const threshold = 30;
+            const threshold = 20;
             if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
                 if (Math.abs(dx) > Math.abs(dy)) {
                     // Horizontal swipe
@@ -51,6 +55,47 @@ export class InputHandler {
                 // Tap (wait turn)
                 this.game.playerAction({ type: 'wait' });
             }
+        }, { passive: false });
+        
+        this.addTouchButtons();
+    }
+    
+    addTouchButtons() {
+        // Only show on mobile
+        if (window.innerWidth > 768) return;
+        
+        const buttonsHTML = `
+            <div id="touch-controls">
+                <button class="touch-btn" data-action="up">↑</button>
+                <div class="touch-row">
+                    <button class="touch-btn" data-action="left">←</button>
+                    <button class="touch-btn" data-action="wait">⏸</button>
+                    <button class="touch-btn" data-action="right">→</button>
+                </div>
+                <button class="touch-btn" data-action="down">↓</button>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', buttonsHTML);
+        
+        // Add button event listeners
+        document.querySelectorAll('.touch-btn').forEach(btn => {
+            btn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const action = btn.dataset.action;
+                
+                const actions = {
+                    'up': { type: 'move', dx: 0, dy: -1 },
+                    'down': { type: 'move', dx: 0, dy: 1 },
+                    'left': { type: 'move', dx: -1, dy: 0 },
+                    'right': { type: 'move', dx: 1, dy: 0 },
+                    'wait': { type: 'wait' }
+                };
+                
+                if (actions[action]) {
+                    this.game.playerAction(actions[action]);
+                }
+            });
         });
     }
     
