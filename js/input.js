@@ -65,7 +65,7 @@ export class InputHandler {
         if (window.innerWidth > 768) return;
         
         const buttonsHTML = `
-            <div id="touch-controls">
+            <div id="touch-controls" class="visible">
                 <button class="touch-btn" data-action="up">↑</button>
                 <div class="touch-row">
                     <button class="touch-btn" data-action="left">←</button>
@@ -74,9 +74,27 @@ export class InputHandler {
                 </div>
                 <button class="touch-btn" data-action="down">↓</button>
             </div>
+            <button id="toggle-controls" title="Toggle Controls">🎮</button>
         `;
         
         document.body.insertAdjacentHTML('beforeend', buttonsHTML);
+        
+        // Toggle button functionality
+        const toggleBtn = document.getElementById('toggle-controls');
+        const controls = document.getElementById('touch-controls');
+        
+        toggleBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            controls.classList.toggle('visible');
+            // Save preference
+            localStorage.setItem('touch-controls-visible', controls.classList.contains('visible'));
+        });
+        
+        // Load saved preference
+        const savedPref = localStorage.getItem('touch-controls-visible');
+        if (savedPref === 'false') {
+            controls.classList.remove('visible');
+        }
         
         // Add button event listeners
         document.querySelectorAll('.touch-btn').forEach(btn => {

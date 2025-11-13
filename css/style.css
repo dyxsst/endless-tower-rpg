@@ -190,7 +190,7 @@ body {
 /* Touch Controls */
 #touch-controls {
     position: fixed;
-    bottom: 20px;
+    bottom: 70px;
     right: 20px;
     display: flex;
     flex-direction: column;
@@ -198,6 +198,41 @@ body {
     gap: 10px;
     z-index: 1000;
     pointer-events: all;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+}
+
+#touch-controls.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+#toggle-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #ffa500;
+    border: 2px solid #ffa500;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1001;
+    pointer-events: all;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+#toggle-controls:active {
+    background: rgba(255, 165, 0, 0.4);
+    transform: scale(0.9);
 }
 
 .touch-row {
@@ -256,7 +291,8 @@ body {
 }
 
 @media (min-width: 769px) {
-    #touch-controls {
+    #touch-controls,
+    #toggle-controls {
         display: none;
     }
 }

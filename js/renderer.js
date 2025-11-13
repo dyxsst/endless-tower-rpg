@@ -7,6 +7,16 @@ export class Renderer {
         this.viewportHeight = 0;
         this.calculateViewport();
         
+        // Camera position (smooth scrolling)
+        this.cameraX = 0;
+        this.cameraY = 0;
+        this.targetCameraX = 0;
+        this.targetCameraY = 0;
+        this.cameraSpeed = 0.15;
+        
+        // Border for camera movement (tiles from edge)
+        this.cameraBorder = 5;
+        
         // Colors
         this.colors = {
             wall: '#333',
@@ -27,9 +37,16 @@ export class Renderer {
     render(labyrinth, player, enemies, items) {
         if (!labyrinth || !player) return;
         
-        // Calculate camera offset to center on player
-        const offsetX = Math.floor(this.viewportWidth / 2) - player.x;
-        const offsetY = Math.floor(this.viewportHeight / 2) - player.y;
+        // Update camera target based on player position and borders
+        this.updateCamera(player);
+        
+        // Smooth camera movement
+        this.cameraX += (this.targetCameraX - this.cameraX) * this.cameraSpeed;
+        this.cameraY += (this.targetCameraY - this.cameraY) * this.cameraSpeed;
+        
+        // Calculate render offset
+        const offsetX = -Math.floor(this.cameraX);
+        const offsetY = -Math.floor(this.cameraY);
         
         // Render labyrinth
         this.renderLabyrinth(labyrinth, offsetX, offsetY);
@@ -48,6 +65,36 @@ export class Renderer {
         
         // Render player
         this.renderPlayer(player, offsetX, offsetY);
+    }
+    
+    updateCamera(player) {
+        const halfViewportX = Math.floor(this.viewportWidth / 2);
+        const halfViewportY = Math.floor(this.viewportHeight / 2);
+        
+        // Calculate player position relative to current camera
+        const playerScreenX = player.x - this.targetCameraX;
+        const playerScreenY = player.y - this.targetCameraY;
+        
+        // Check if player is near borders and adjust camera
+        if (playerScreenX < this.cameraBorder) {
+            this.targetCameraX = player.x - this.cameraBorder;
+        } else if (playerScreenX > this.viewportWidth - this.cameraBorder - 1) {
+            this.targetCameraX = player.x - this.viewportWidth + this.cameraBorder + 1;
+        }
+        
+        if (playerScreenY < this.cameraBorder) {
+            this.targetCameraY = player.y - this.cameraBorder;
+        } else if (playerScreenY > this.viewportHeight - this.cameraBorder - 1) {
+            this.targetCameraY = player.y - this.viewportHeight + this.cameraBorder + 1;
+        }
+        
+        // Initialize camera on first render
+        if (this.cameraX === 0 && this.cameraY === 0) {
+            this.cameraX = player.x - halfViewportX;
+            this.cameraY = player.y - halfViewportY;
+            this.targetCameraX = this.cameraX;
+            this.targetCameraY = this.cameraY;
+        }
     }
     
     renderLabyrinth(labyrinth, offsetX, offsetY) {
