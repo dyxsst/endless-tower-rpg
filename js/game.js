@@ -103,8 +103,8 @@ export class Game {
         // Spawn enemies
         this.spawnEnemies();
         
-        // Spawn items
-        this.spawnItems();
+        // Clear items from previous floor
+        this.items = [];
         
         console.log(`Floor ${floorNumber} generated`);
     }
@@ -228,9 +228,28 @@ export class Game {
         }
         
         // Check for items
-        this.collectItems(newX, newY);
+        this.pickupItem(newX, newY);
         
         return true;
+    }
+    
+    pickupItem(x, y) {
+        const itemIdx = this.items.findIndex(item => item.x === x && item.y === y);
+        if (itemIdx >= 0) {
+            const item = this.items[itemIdx];
+            this.items.splice(itemIdx, 1);
+            
+            // Auto-equip if slot is empty, otherwise add to inventory
+            if (!this.player[item.type]) {
+                this.player.equip(item);
+                this.showMessage(`Equipped ${item.name}!`, item.getColor());
+            } else {
+                this.player.inventory.push(item);
+                this.showMessage(`Picked up ${item.name}`, item.getColor());
+            }
+            
+            this.updateUI();
+        }
     }
     
     bumpAttack(enemy) {
@@ -297,8 +316,28 @@ export class Game {
         return this.enemies.find(e => e.x === x && e.y === y && e.hp > 0);
     }
     
-    collectItems(x, y) {
-        // TODO: Implement item collection
+    showMessage(text, color = '#fff') {
+        // Simple message display (can be enhanced later)
+        const msgDiv = document.createElement('div');
+        msgDiv.textContent = text;
+        msgDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            color: ${color};
+            padding: 20px 40px;
+            border: 2px solid ${color};
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 9999;
+            animation: fadeOut 2s forwards;
+        `;
+        
+        document.body.appendChild(msgDiv);
+        setTimeout(() => msgDiv.remove(), 2000);
     }
     
     killEnemy(enemy) {
@@ -311,7 +350,29 @@ export class Game {
         this.player.heal(healAmount);
         this.renderer.showDamageNumber(this.player.x, this.player.y, healAmount, '#44ff44');
         
+        // Item drop chance (30% base + floor bonus, cap at 60%)
+        const dropChance = Math.min(60, 30 + this.floor * 2);
+        if (Math.random() * 100 < dropChance) {
+            this.dropItem(enemy.x, enemy.y);
+        }
+        
         console.log(`Enemy defeated! +${enemy.xpValue} XP, +${enemy.goldValue} gold, +${healAmount} HP`);
+    }
+    
+    dropItem(x, y) {
+        import('./items/item.js').then(module => {
+            const { Item } = module;
+            
+            const rarity = Item.rollRarity();
+            const type = Item.rollType();
+            const item = new Item(type, rarity, this.floor);
+            
+            item.x = x;
+            item.y = y;
+            
+            this.items.push(item);
+            console.log(`Dropped: ${item.name} (${item.rarity})`);
+        });
     }
     
     async ascendFloor() {
@@ -333,6 +394,25 @@ export class Game {
         document.getElementById('player-hp').textContent = `${this.player.hp}/${this.player.maxHp}`;
         document.getElementById('player-xp').textContent = this.player.xp;
         document.getElementById('player-gold').textContent = this.player.gold;
+        
+        // Update equipment display (add to stats panel)
+        const statsPanel = document.getElementById('stats-panel');
+        let equipDiv = document.getElementById('equipment-display');
+        if (!equipDiv) {
+            equipDiv = document.createElement('div');
+            equipDiv.id = 'equipment-display';
+            equipDiv.style.marginTop = '10px';
+            equipDiv.style.fontSize = '11px';
+            statsPanel.appendChild(equipDiv);
+        }
+        
+        const equip = [];
+        if (this.player.weapon) equip.push(`⚔️ ${this.player.weapon.name}`);
+        if (this.player.armor) equip.push(`🛡️ ${this.player.armor.name}`);
+        if (this.player.charm) equip.push(`📿 ${this.player.charm.name}`);
+        if (this.player.boots) equip.push(`👢 ${this.player.boots.name}`);
+        
+        equipDiv.innerHTML = equip.length > 0 ? equip.join('<br>') : 'No equipment';
     }
     
     async saveGame() {

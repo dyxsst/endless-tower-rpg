@@ -291,7 +291,22 @@ export class Renderer {
         const screenX = (item.x + offsetX) * this.tileSize;
         const screenY = (item.y + offsetY) * this.tileSize;
         
-        this.ctx.fillStyle = this.colors.item;
-        this.ctx.fillRect(screenX + 4, screenY + 4, this.tileSize - 8, this.tileSize - 8);
+        // Item background
+        this.ctx.fillStyle = item.getColor();
+        this.ctx.fillRect(screenX + 3, screenY + 3, this.tileSize - 6, this.tileSize - 6);
+        
+        // Item symbol
+        const symbols = {
+            'weapon': '⚔',
+            'armor': '🛡',
+            'charm': '📿',
+            'boots': '👢'
+        };
+        
+        this.ctx.fillStyle = '#fff';
+        this.ctx.font = '12px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText(symbols[item.type] || '?', screenX + this.tileSize / 2, screenY + this.tileSize / 2);
     }
 }

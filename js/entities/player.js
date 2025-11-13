@@ -22,12 +22,61 @@ export class Player {
         this.mana = 10;
         this.maxMana = 10;
         
-        // Inventory
+        // Equipment
         this.weapon = null;
         this.armor = null;
         this.charm = null;
         this.boots = null;
+        
+        // Inventory
         this.inventory = [];
+    }
+    
+    equip(item) {
+        // Unequip current item in slot
+        const currentItem = this[item.type];
+        if (currentItem) {
+            this.unequip(item.type);
+            this.inventory.push(currentItem);
+        }
+        
+        // Equip new item
+        this[item.type] = item;
+        
+        // Apply stats
+        if (item.stats.atk) this.atk += item.stats.atk;
+        if (item.stats.def) this.def += item.stats.def;
+        if (item.stats.hp) {
+            this.maxHp += item.stats.hp;
+            this.hp += item.stats.hp;
+        }
+        if (item.stats.spd) this.spd += item.stats.spd;
+        if (item.stats.crit) this.crit += item.stats.crit;
+        
+        // Remove from inventory if it was there
+        const invIdx = this.inventory.indexOf(item);
+        if (invIdx >= 0) {
+            this.inventory.splice(invIdx, 1);
+        }
+        
+        console.log(`Equipped ${item.name}`);
+    }
+    
+    unequip(slotType) {
+        const item = this[slotType];
+        if (!item) return;
+        
+        // Remove stats
+        if (item.stats.atk) this.atk -= item.stats.atk;
+        if (item.stats.def) this.def -= item.stats.def;
+        if (item.stats.hp) {
+            this.maxHp -= item.stats.hp;
+            this.hp = Math.min(this.hp, this.maxHp);
+        }
+        if (item.stats.spd) this.spd -= item.stats.spd;
+        if (item.stats.crit) this.crit -= item.stats.crit;
+        
+        this[slotType] = null;
     }
     
     takeDamage(amount) {
@@ -81,6 +130,10 @@ export class Player {
             maxStamina: this.maxStamina,
             mana: this.mana,
             maxMana: this.maxMana,
+            weapon: this.weapon,
+            armor: this.armor,
+            charm: this.charm,
+            boots: this.boots,
             inventory: this.inventory
         };
     }
