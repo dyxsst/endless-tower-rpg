@@ -44,9 +44,13 @@ export class Renderer {
         this.cameraX += (this.targetCameraX - this.cameraX) * this.cameraSpeed;
         this.cameraY += (this.targetCameraY - this.cameraY) * this.cameraSpeed;
         
-        // Calculate render offset
-        const offsetX = -Math.floor(this.cameraX);
-        const offsetY = -Math.floor(this.cameraY);
+        // Round to prevent sub-pixel rendering issues
+        const roundedCameraX = Math.round(this.cameraX);
+        const roundedCameraY = Math.round(this.cameraY);
+        
+        // Calculate render offset (camera position is top-left of viewport)
+        const offsetX = -roundedCameraX;
+        const offsetY = -roundedCameraY;
         
         // Render labyrinth
         this.renderLabyrinth(labyrinth, offsetX, offsetY);
