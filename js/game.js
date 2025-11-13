@@ -297,7 +297,12 @@ export class Game {
         this.player.gainXP(enemy.xpValue);
         this.player.gold += enemy.goldValue;
         
-        console.log(`Enemy defeated! +${enemy.xpValue} XP, +${enemy.goldValue} gold`);
+        // Partial heal on kill (30% of max HP)
+        const healAmount = Math.floor(this.player.maxHp * 0.3);
+        this.player.heal(healAmount);
+        this.renderer.showDamageNumber(this.player.x, this.player.y, healAmount, '#44ff44');
+        
+        console.log(`Enemy defeated! +${enemy.xpValue} XP, +${enemy.goldValue} gold, +${healAmount} HP`);
     }
     
     async ascendFloor() {

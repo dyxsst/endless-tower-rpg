@@ -46,7 +46,10 @@ export class Enemy {
     }
     
     takeTurn(player, labyrinth, allEnemies) {
-        // Check if adjacent to player (attack instead of moving)
+        // Check line of sight to player
+        const hasLOS = this.hasLineOfSight(player, labyrinth);
+        
+        // Check if adjacent to player (attack)
         const distToPlayer = Math.abs(this.x - player.x) + Math.abs(this.y - player.y);
         
         if (distToPlayer === 1) {
@@ -57,11 +60,28 @@ export class Enemy {
             return;
         }
         
-        // Simple AI: move towards player
+        // Only move if we can see the player
+        if (!hasLOS) {
+            // Wander randomly if can't see player
+            const dirs = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+            const dir = dirs[Math.floor(Math.random() * dirs.length)];
+            const newX = this.x + dir[0];
+            const newY = this.y + dir[1];
+            
+            const blocked = labyrinth.isWall(newX, newY) || 
+                           allEnemies.some(e => e !== this && e.hp > 0 && e.x === newX && e.y === newY);
+            
+            if (!blocked) {
+                this.x = newX;
+                this.y = newY;
+            }
+            return;
+        }
+        
+        // Move towards player if we can see them
         let moveX = 0;
         let moveY = 0;
         
-        // Decide primary direction
         const dx = player.x - this.x;
         const dy = player.y - this.y;
         
@@ -75,7 +95,6 @@ export class Enemy {
         const newX = this.x + moveX;
         const newY = this.y + moveY;
         
-        // Check if position is valid and not occupied by another enemy
         const blocked = labyrinth.isWall(newX, newY) || 
                        allEnemies.some(e => e !== this && e.hp > 0 && e.x === newX && e.y === newY);
         
@@ -95,5 +114,34 @@ export class Enemy {
                 this.y = altY;
             }
         }
+    }
+    
+    hasLineOfSight(player, labyrinth) {
+        // Simple line of sight check
+        const dx = Math.abs(player.x - this.x);
+        const dy = Math.abs(player.y - this.y);
+        const dist = Math.max(dx, dy);
+        
+        if (dist > 8) return false; // Too far
+        
+        const stepX = (player.x - this.x) / dist;
+        const stepY = (player.y - this.y) / dist;
+        
+        let x = this.x + 0.5;
+        let y = this.y + 0.5;
+        
+        for (let i = 0; i < dist; i++) {
+            x += stepX;
+            y += stepY;
+            
+            const tileX = Math.floor(x);
+            const tileY = Math.floor(y);
+            
+            if (labyrinth.isWall(tileX, tileY)) {
+                return false;
+            }
+        }
+        
+        return true;
     }
 }

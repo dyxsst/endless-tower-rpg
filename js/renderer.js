@@ -7,7 +7,10 @@ export class Renderer {
         this.viewportHeight = 0;
         this.calculateViewport();
         
-        // Camera position (smooth scrolling)
+        // Detect mobile
+        this.isMobile = window.innerWidth <= 768;
+        
+        // Camera position (smooth scrolling on mobile only)
         this.cameraX = 0;
         this.cameraY = 0;
         this.targetCameraX = 0;
@@ -28,7 +31,8 @@ export class Renderer {
             exit: '#fa4',
             player: '#4af',
             enemy: '#f44',
-            item: '#ff4'
+            item: '#ff4',
+            fog: 'rgba(0, 0, 0, 0.85)'
         };
     }
     
@@ -40,32 +44,41 @@ export class Renderer {
     render(labyrinth, player, enemies, items) {
         if (!labyrinth || !player) return;
         
-        // Update camera target based on player position and borders
-        this.updateCamera(player);
+        let offsetX, offsetY;
         
-        // Smooth camera movement
-        this.cameraX += (this.targetCameraX - this.cameraX) * this.cameraSpeed;
-        this.cameraY += (this.targetCameraY - this.cameraY) * this.cameraSpeed;
+        if (this.isMobile) {
+            // Mobile: smooth scrolling camera
+            this.updateCamera(player);
+            this.cameraX += (this.targetCameraX - this.cameraX) * this.cameraSpeed;
+            this.cameraY += (this.targetCameraY - this.cameraY) * this.cameraSpeed;
+            
+            const roundedCameraX = Math.round(this.cameraX);
+            const roundedCameraY = Math.round(this.cameraY);
+            
+            offsetX = -roundedCameraX;
+            offsetY = -roundedCameraY;
+        } else {
+            // Desktop: static camera centered on labyrinth
+            offsetX = Math.floor((this.viewportWidth - labyrinth.width) / 2);
+            offsetY = Math.floor((this.viewportHeight - labyrinth.height) / 2);
+        }
         
-        // Round to prevent sub-pixel rendering issues
-        const roundedCameraX = Math.round(this.cameraX);
-        const roundedCameraY = Math.round(this.cameraY);
+        // Calculate visibility (FOV)
+        const visibleTiles = this.calculateFOV(player, labyrinth);
         
-        // Calculate render offset (camera position is top-left of viewport)
-        const offsetX = -roundedCameraX;
-        const offsetY = -roundedCameraY;
+        // Render labyrinth with fog of war
+        this.renderLabyrinth(labyrinth, offsetX, offsetY, visibleTiles);
         
-        // Render labyrinth
-        this.renderLabyrinth(labyrinth, offsetX, offsetY);
-        
-        // Render items
+        // Render items (only visible ones)
         items.forEach(item => {
-            this.renderItem(item, offsetX, offsetY);
+            if (visibleTiles.has(`${item.x},${item.y}`)) {
+                this.renderItem(item, offsetX, offsetY);
+            }
         });
         
-        // Render enemies
+        // Render enemies (only visible ones)
         enemies.forEach(enemy => {
-            if (enemy.hp > 0) {
+            if (enemy.hp > 0 && visibleTiles.has(`${enemy.x},${enemy.y}`)) {
                 this.renderEnemy(enemy, offsetX, offsetY);
             }
         });
@@ -120,6 +133,37 @@ export class Renderer {
         }
     }
     
+    calculateFOV(player, labyrinth) {
+        const visibleTiles = new Set();
+        const radius = 8; // Vision radius
+        
+        // Simple raycasting FOV
+        for (let angle = 0; angle < 360; angle += 2) {
+            const rad = angle * Math.PI / 180;
+            const dx = Math.cos(rad);
+            const dy = Math.sin(rad);
+            
+            let x = player.x + 0.5;
+            let y = player.y + 0.5;
+            
+            for (let i = 0; i < radius; i++) {
+                const tileX = Math.floor(x);
+                const tileY = Math.floor(y);
+                
+                if (!labyrinth.isInBounds(tileX, tileY)) break;
+                
+                visibleTiles.add(`${tileX},${tileY}`);
+                
+                if (labyrinth.isWall(tileX, tileY)) break;
+                
+                x += dx * 0.5;
+                y += dy * 0.5;
+            }
+        }
+        
+        return visibleTiles;
+    }
+    
     updateCamera(player) {
         const halfViewportX = Math.floor(this.viewportWidth / 2);
         const halfViewportY = Math.floor(this.viewportHeight / 2);
@@ -150,7 +194,7 @@ export class Renderer {
         }
     }
     
-    renderLabyrinth(labyrinth, offsetX, offsetY) {
+    renderLabyrinth(labyrinth, offsetX, offsetY, visibleTiles) {
         for (let y = 0; y < labyrinth.height; y++) {
             for (let x = 0; x < labyrinth.width; x++) {
                 const screenX = (x + offsetX) * this.tileSize;
@@ -163,6 +207,7 @@ export class Renderer {
                 }
                 
                 const tile = labyrinth.getTile(x, y);
+                const isVisible = visibleTiles.has(`${x},${y}`);
                 
                 switch (tile) {
                     case 0: // Floor
@@ -186,6 +231,12 @@ export class Renderer {
                 // Draw grid lines
                 this.ctx.strokeStyle = '#222';
                 this.ctx.strokeRect(screenX, screenY, this.tileSize, this.tileSize);
+                
+                // Apply fog if not visible
+                if (!isVisible) {
+                    this.ctx.fillStyle = this.colors.fog;
+                    this.ctx.fillRect(screenX, screenY, this.tileSize, this.tileSize);
+                }
             }
         }
     }
