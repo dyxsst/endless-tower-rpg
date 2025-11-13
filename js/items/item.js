@@ -127,6 +127,17 @@ export class Item {
         return parts.join(', ');
     }
     
+    getTotalValue() {
+        // Calculate total stat value for pricing
+        let total = 0;
+        if (this.stats.atk) total += this.stats.atk * 2; // ATK worth more
+        if (this.stats.def) total += this.stats.def * 2; // DEF worth more
+        if (this.stats.hp) total += this.stats.hp * 0.5; // HP less per point
+        if (this.stats.spd) total += this.stats.spd * 3; // SPD rare
+        if (this.stats.crit) total += this.stats.crit * 1.5; // CRIT valuable
+        return Math.floor(total);
+    }
+    
     static rollRarity() {
         const roll = Math.random() * 100;
         if (roll < 70) return 'common';

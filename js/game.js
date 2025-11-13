@@ -468,8 +468,8 @@ export class Game {
                 const type = Item.rollType();
                 const item = new Item(type, rarity, this.floor);
                 
-                // Shop items cost gold
-                item.price = Math.floor(item.stats.total * 3 + this.floor * 5);
+                // Shop items cost gold based on stat value
+                item.price = Math.floor(item.getTotalValue() * 3 + this.floor * 5);
                 shopItems.push(item);
             }
             
