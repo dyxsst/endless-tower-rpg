@@ -58,9 +58,20 @@ export class Renderer {
             offsetX = -roundedCameraX;
             offsetY = -roundedCameraY;
         } else {
-            // Desktop: static camera centered on labyrinth
-            offsetX = Math.floor((this.viewportWidth - labyrinth.width) / 2);
-            offsetY = Math.floor((this.viewportHeight - labyrinth.height) / 2);
+            // Desktop: center labyrinth in viewport
+            // If labyrinth is smaller than viewport, center it
+            // If labyrinth is larger, show top-left portion
+            if (labyrinth.width < this.viewportWidth) {
+                offsetX = Math.floor((this.viewportWidth - labyrinth.width) / 2);
+            } else {
+                offsetX = 0;
+            }
+            
+            if (labyrinth.height < this.viewportHeight) {
+                offsetY = Math.floor((this.viewportHeight - labyrinth.height) / 2);
+            } else {
+                offsetY = 0;
+            }
         }
         
         // Calculate visibility (FOV)
