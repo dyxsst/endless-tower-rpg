@@ -189,6 +189,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    const closeShopBtn = document.getElementById('close-shop-btn');
+    if (closeShopBtn) {
+        closeShopBtn.addEventListener('click', () => {
+            if (window.game) {
+                window.game.closeShop();
+            }
+        });
+    }
+    
     const inventoryBtn = document.getElementById('inventory-btn');
     if (inventoryBtn) {
         inventoryBtn.addEventListener('click', () => {

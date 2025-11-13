@@ -90,6 +90,7 @@ export class Game {
     
     async generateFloor(floorNumber) {
         this.floor = floorNumber;
+        const isMilestone = (this.floor % 5 === 0);
         
         // Generate labyrinth
         this.labyrinth = new Labyrinth(40, 40, this.floor);
@@ -101,12 +102,17 @@ export class Game {
         this.player.y = start.y;
         
         // Spawn enemies
-        this.spawnEnemies();
+        if (isMilestone) {
+            this.spawnBoss();
+            this.showMilestoneEntry();
+        } else {
+            this.spawnEnemies();
+        }
         
         // Clear items from previous floor
         this.items = [];
         
-        console.log(`Floor ${floorNumber} generated`);
+        console.log(`Floor ${floorNumber} generated${isMilestone ? ' (MILESTONE)' : ''}`);
     }
     
     spawnEnemies() {
@@ -149,6 +155,21 @@ export class Game {
             }
             
             console.log(`Spawned ${this.enemies.length} enemies on floor ${this.floor}`);
+        });
+    }
+    
+    spawnBoss() {
+        import('./entities/enemy.js').then(module => {
+            const { Enemy } = module;
+            
+            this.enemies = [];
+            
+            // Spawn boss near exit
+            const exit = this.labyrinth.exitPos;
+            const boss = new Enemy(exit.x, exit.y, 'boss', this.floor);
+            this.enemies.push(boss);
+            
+            console.log(`Boss spawned at exit on floor ${this.floor}`);
         });
     }
     
@@ -340,6 +361,200 @@ export class Game {
         setTimeout(() => msgDiv.remove(), 2000);
     }
     
+    showMilestoneEntry() {
+        // Small heal on milestone entry
+        const healAmount = Math.floor(this.player.maxHp * 0.2);
+        this.player.heal(healAmount);
+        
+        this.showMessage(`MILESTONE FLOOR ${this.floor}! +${healAmount} HP`);
+        
+        // Show shop button after message
+        setTimeout(() => {
+            this.showShopPrompt();
+        }, 2500);
+    }
+    
+    showShopPrompt() {
+        const msgDiv = document.createElement('div');
+        msgDiv.innerHTML = `
+            <div style="text-align: center;">
+                <h3 style="margin-bottom: 15px; color: #ffa500;">Shop Available!</h3>
+                <button id="open-shop-btn" style="
+                    padding: 10px 20px;
+                    font-size: 16px;
+                    font-family: 'Courier New', monospace;
+                    background: #333;
+                    color: #ffa500;
+                    border: 2px solid #ffa500;
+                    border-radius: 5px;
+                    cursor: pointer;
+                ">Open Shop</button>
+                <button id="skip-shop-btn" style="
+                    padding: 10px 20px;
+                    margin-left: 10px;
+                    font-size: 16px;
+                    font-family: 'Courier New', monospace;
+                    background: #222;
+                    color: #888;
+                    border: 2px solid #666;
+                    border-radius: 5px;
+                    cursor: pointer;
+                ">Skip</button>
+            </div>
+        `;
+        msgDiv.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            padding: 30px;
+            border: 3px solid #ffa500;
+            border-radius: 10px;
+            z-index: 2500;
+        `;
+        
+        document.body.appendChild(msgDiv);
+        
+        document.getElementById('open-shop-btn').addEventListener('click', () => {
+            msgDiv.remove();
+            this.openShop();
+        });
+        
+        document.getElementById('skip-shop-btn').addEventListener('click', () => {
+            msgDiv.remove();
+        });
+    }
+    
+    openShop() {
+        const overlay = document.getElementById('shop-overlay');
+        if (!overlay) {
+            console.error('Shop overlay not found');
+            return;
+        }
+        
+        overlay.classList.remove('hidden');
+        this.gameRunning = false;
+        
+        // Update shop floor display
+        const shopFloor = document.getElementById('shop-floor');
+        if (shopFloor) {
+            shopFloor.textContent = this.floor;
+        }
+        
+        this.generateShopInventory();
+    }
+    
+    closeShop() {
+        const overlay = document.getElementById('shop-overlay');
+        overlay.classList.add('hidden');
+        this.gameRunning = true;
+        this.gameLoop();
+    }
+    
+    generateShopInventory() {
+        const shopList = document.getElementById('shop-inventory');
+        shopList.innerHTML = '';
+        
+        // Generate 3-5 items for sale
+        const itemCount = 3 + Math.floor(Math.random() * 3);
+        const shopItems = [];
+        
+        import('./items/item.js').then(module => {
+            const { Item } = module;
+            
+            for (let i = 0; i < itemCount; i++) {
+                const rarity = Item.rollRarity();
+                const type = Item.rollType();
+                const item = new Item(type, rarity, this.floor);
+                
+                // Shop items cost gold
+                item.price = Math.floor(item.stats.total * 3 + this.floor * 5);
+                shopItems.push(item);
+            }
+            
+            // Add heal option
+            const healOption = {
+                name: 'Full Heal',
+                description: 'Restore all HP',
+                price: 20 + this.floor * 3,
+                isHeal: true
+            };
+            
+            // Render shop items
+            shopItems.forEach((item, idx) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'shop-item';
+                itemDiv.style.borderColor = item.getColor();
+                itemDiv.innerHTML = `
+                    <div class="item-name" style="color: ${item.getColor()}">${item.name}</div>
+                    <div class="item-stats">${item.getStatsText()}</div>
+                    <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #ffa500; font-weight: bold;">${item.price} gold</span>
+                        <button onclick="game.buyItem(${idx})" class="shop-buy-btn">Buy</button>
+                    </div>
+                `;
+                shopList.appendChild(itemDiv);
+            });
+            
+            // Add heal option
+            const healDiv = document.createElement('div');
+            healDiv.className = 'shop-item';
+            healDiv.style.borderColor = '#44ff44';
+            healDiv.innerHTML = `
+                <div class="item-name" style="color: #44ff44">${healOption.name}</div>
+                <div class="item-stats" style="color: #aaa;">${healOption.description}</div>
+                <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #ffa500; font-weight: bold;">${healOption.price} gold</span>
+                    <button onclick="game.buyHeal()" class="shop-buy-btn">Buy</button>
+                </div>
+            `;
+            shopList.appendChild(healDiv);
+            
+            // Store items for purchase
+            this.shopItems = shopItems;
+        });
+    }
+    
+    buyItem(idx) {
+        const item = this.shopItems[idx];
+        if (!item) return;
+        
+        if (this.player.gold < item.price) {
+            this.showMessage('Not enough gold!');
+            return;
+        }
+        
+        this.player.gold -= item.price;
+        this.player.inventory.push(item);
+        this.updateUI();
+        this.showMessage(`Purchased ${item.name}`);
+        
+        // Remove from shop
+        this.shopItems.splice(idx, 1);
+        this.generateShopInventory();
+    }
+    
+    buyHeal() {
+        const price = 20 + this.floor * 3;
+        
+        if (this.player.gold < price) {
+            this.showMessage('Not enough gold!');
+            return;
+        }
+        
+        if (this.player.hp === this.player.maxHp) {
+            this.showMessage('Already at full HP!');
+            return;
+        }
+        
+        this.player.gold -= price;
+        const healAmount = this.player.maxHp - this.player.hp;
+        this.player.heal(healAmount);
+        this.updateUI();
+        this.showMessage(`Healed ${healAmount} HP`);
+    }
+    
     killEnemy(enemy) {
         // Grant XP and gold
         this.player.gainXP(enemy.xpValue);
@@ -350,13 +565,43 @@ export class Game {
         this.player.heal(healAmount);
         this.renderer.showDamageNumber(this.player.x, this.player.y, healAmount, '#44ff44');
         
-        // Item drop chance (30% base + floor bonus, cap at 60%)
-        const dropChance = Math.min(60, 30 + this.floor * 2);
-        if (Math.random() * 100 < dropChance) {
-            this.dropItem(enemy.x, enemy.y);
+        // Item drop chance
+        const isBoss = enemy.type === 'boss';
+        
+        if (isBoss) {
+            // Boss: guaranteed Uncommon+ drop
+            this.dropBossLoot(enemy.x, enemy.y);
+        } else {
+            // Normal: 30% base + floor bonus, cap at 60%
+            const dropChance = Math.min(60, 30 + this.floor * 2);
+            if (Math.random() * 100 < dropChance) {
+                this.dropItem(enemy.x, enemy.y);
+            }
         }
         
         console.log(`Enemy defeated! +${enemy.xpValue} XP, +${enemy.goldValue} gold, +${healAmount} HP`);
+    }
+    
+    dropBossLoot(x, y) {
+        import('./items/item.js').then(module => {
+            const { Item } = module;
+            
+            // Roll rarity with guarantee of at least Uncommon
+            let rarity = Item.rollRarity();
+            if (rarity === 'common') {
+                rarity = 'uncommon'; // Upgrade common to uncommon
+            }
+            
+            const type = Item.rollType();
+            const item = new Item(type, rarity, this.floor);
+            
+            item.x = x;
+            item.y = y;
+            
+            this.items.push(item);
+            this.showMessage(`Boss dropped: ${item.name}!`, item.getColor());
+            console.log(`Boss dropped: ${item.name} (${item.rarity})`);
+        });
     }
     
     dropItem(x, y) {

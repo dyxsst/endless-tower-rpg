@@ -22,10 +22,16 @@ export class Enemy {
         const baseStats = this.getBaseStats();
         const floorMultiplier = 1 + (this.floor - 1) * 0.15;
         
-        this.maxHp = Math.floor(baseStats.hp * floorMultiplier);
+        // Apply boss modifier if boss type (HP ×1.6, ATK ×1.2, DEF ×1.2)
+        const isBoss = this.type === 'boss';
+        const hpMod = isBoss ? 1.6 : 1.0;
+        const atkMod = isBoss ? 1.2 : 1.0;
+        const defMod = isBoss ? 1.2 : 1.0;
+        
+        this.maxHp = Math.floor(baseStats.hp * floorMultiplier * hpMod);
         this.hp = this.maxHp;
-        this.atk = Math.floor(baseStats.atk * floorMultiplier);
-        this.def = Math.floor(baseStats.def * floorMultiplier);
+        this.atk = Math.floor(baseStats.atk * floorMultiplier * atkMod);
+        this.def = Math.floor(baseStats.def * floorMultiplier * defMod);
         this.spd = baseStats.spd;
         
         this.xpValue = Math.floor(baseStats.xp * floorMultiplier);
@@ -37,7 +43,8 @@ export class Enemy {
             'walker': { hp: 30, atk: 8, def: 3, spd: 5, xp: 15, gold: 5, symbol: 'W' },
             'archer': { hp: 20, atk: 12, def: 2, spd: 6, xp: 20, gold: 8, symbol: 'A' },
             'mage': { hp: 25, atk: 15, def: 1, spd: 4, xp: 25, gold: 10, symbol: 'M' },
-            'protector': { hp: 50, atk: 10, def: 8, spd: 3, xp: 35, gold: 15, symbol: 'P' }
+            'protector': { hp: 50, atk: 10, def: 8, spd: 3, xp: 35, gold: 15, symbol: 'P' },
+            'boss': { hp: 80, atk: 18, def: 10, spd: 4, xp: 100, gold: 50, symbol: 'B' }
         };
         
         const stat = stats[this.type] || stats['walker'];
