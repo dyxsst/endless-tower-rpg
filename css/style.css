@@ -93,6 +93,163 @@ body {
     display: none;
 }
 
+#inventory-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: all;
+    z-index: 2000;
+}
+
+#inventory-overlay.hidden {
+    display: none;
+}
+
+#inventory-content {
+    background: #1a1a1a;
+    padding: 30px;
+    border: 3px solid #666;
+    border-radius: 10px;
+    min-width: 400px;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+#inventory-content h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ffa500;
+}
+
+#inventory-content h3 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: #aaa;
+    border-bottom: 1px solid #444;
+    padding-bottom: 5px;
+}
+
+#inventory-slots {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.equip-slot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 5px;
+}
+
+.equip-slot label {
+    min-width: 80px;
+    font-weight: bold;
+    color: #aaa;
+}
+
+.slot-item {
+    flex: 1;
+    padding: 8px;
+    background: #333;
+    border: 1px solid #555;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.slot-item:hover {
+    background: #444;
+    border-color: #ffa500;
+}
+
+.slot-item.empty {
+    color: #666;
+    font-style: italic;
+}
+
+#inventory-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.inventory-item {
+    padding: 10px;
+    background: #222;
+    border: 2px solid #444;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.inventory-item:hover {
+    background: #333;
+    transform: translateX(5px);
+}
+
+.item-name {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.item-stats {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.item-actions {
+    margin-top: 8px;
+    display: flex;
+    gap: 8px;
+}
+
+.item-actions button {
+    padding: 4px 12px;
+    font-size: 12px;
+    background: #444;
+    color: #fff;
+    border: 1px solid #666;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.item-actions button:hover {
+    background: #555;
+    border-color: #ffa500;
+}
+
+#close-inventory-btn {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    font-size: 16px;
+    font-family: 'Courier New', monospace;
+    background: #333;
+    color: #fff;
+    border: 2px solid #666;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#close-inventory-btn:hover {
+    background: #444;
+    border-color: #ffa500;
+}
+
 #menu-content {
     background: #222;
     padding: 30px;

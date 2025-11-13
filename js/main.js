@@ -6,6 +6,7 @@ const db = new DB();
 
 // Game instance
 let game = null;
+window.game = null; // Make accessible to inventory UI
 
 // Title screen controls
 const titleScreen = document.getElementById('title-screen');
@@ -22,6 +23,7 @@ async function checkSavedGame() {
 newGameBtn.addEventListener('click', async () => {
     titleScreen.classList.add('hidden');
     game = new Game(db);
+    window.game = game;
     await game.start(true); // true = new game
 });
 
@@ -29,6 +31,7 @@ newGameBtn.addEventListener('click', async () => {
 continueBtn.addEventListener('click', async () => {
     titleScreen.classList.add('hidden');
     game = new Game(db);
+    window.game = game;
     await game.start(false); // false = load game
 });
 

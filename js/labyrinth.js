@@ -22,15 +22,29 @@ export class Labyrinth {
     }
     
     simpleGeneration() {
-        // Create rooms
-        const rooms = this.generateRooms(5, 8);
+        // Create more rooms for better connectivity
+        const rooms = this.generateRooms(6, 10);
         
         // Carve rooms
         rooms.forEach(room => this.carveRoom(room));
         
-        // Connect rooms with corridors
+        // Connect all rooms first (minimum spanning tree)
         for (let i = 0; i < rooms.length - 1; i++) {
             this.connectRooms(rooms[i], rooms[i + 1]);
+        }
+        
+        // Add loops by connecting additional room pairs (10-25% extra connections)
+        const extraConnections = Math.floor(rooms.length * 0.2);
+        for (let i = 0; i < extraConnections; i++) {
+            const idx1 = Math.floor(Math.random() * rooms.length);
+            let idx2 = Math.floor(Math.random() * rooms.length);
+            
+            // Ensure different rooms
+            while (idx2 === idx1) {
+                idx2 = Math.floor(Math.random() * rooms.length);
+            }
+            
+            this.connectRooms(rooms[idx1], rooms[idx2]);
         }
     }
     
@@ -128,19 +142,31 @@ export class Labyrinth {
         this.startPos = floors[0];
         this.grid[this.startPos.y][this.startPos.x] = 2; // 2 = start
         
-        // Place exit at furthest floor tile
-        let maxDist = 0;
-        let exitIdx = floors.length - 1;
-        
-        floors.forEach((pos, idx) => {
+        // Find tiles far from start for exit placement
+        const candidates = floors.filter(pos => {
             const dist = Math.abs(pos.x - this.startPos.x) + Math.abs(pos.y - this.startPos.y);
-            if (dist > maxDist) {
-                maxDist = dist;
-                exitIdx = idx;
-            }
+            return dist > Math.min(this.width, this.height) * 0.6;
         });
         
-        this.exitPos = floors[exitIdx];
+        if (candidates.length === 0) {
+            // Fallback to furthest tile
+            let maxDist = 0;
+            let exitIdx = floors.length - 1;
+            
+            floors.forEach((pos, idx) => {
+                const dist = Math.abs(pos.x - this.startPos.x) + Math.abs(pos.y - this.startPos.y);
+                if (dist > maxDist) {
+                    maxDist = dist;
+                    exitIdx = idx;
+                }
+            });
+            
+            this.exitPos = floors[exitIdx];
+        } else {
+            // Random choice from candidates
+            this.exitPos = candidates[Math.floor(Math.random() * candidates.length)];
+        }
+        
         this.grid[this.exitPos.y][this.exitPos.x] = 3; // 3 = exit
     }
     

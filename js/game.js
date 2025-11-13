@@ -415,6 +415,100 @@ export class Game {
         equipDiv.innerHTML = equip.length > 0 ? equip.join('<br>') : 'No equipment';
     }
     
+    openInventory() {
+        const overlay = document.getElementById('inventory-overlay');
+        overlay.classList.remove('hidden');
+        this.gameRunning = false;
+        
+        this.updateInventoryUI();
+    }
+    
+    closeInventory() {
+        const overlay = document.getElementById('inventory-overlay');
+        overlay.classList.add('hidden');
+        this.gameRunning = true;
+    }
+    
+    updateInventoryUI() {
+        // Update equipped slots
+        const slots = ['weapon', 'armor', 'charm', 'boots'];
+        slots.forEach(slot => {
+            const slotDiv = document.getElementById(`slot-${slot}`);
+            const item = this.player[slot];
+            
+            if (item) {
+                slotDiv.innerHTML = `
+                    <div style="color: ${item.getColor()}">${item.name}</div>
+                    <div style="font-size: 11px; color: #888">${item.getStatsText()}</div>
+                `;
+                slotDiv.classList.remove('empty');
+                slotDiv.onclick = () => this.unequipItem(slot);
+            } else {
+                slotDiv.textContent = 'Empty';
+                slotDiv.classList.add('empty');
+                slotDiv.onclick = null;
+            }
+        });
+        
+        // Update inventory list
+        const listDiv = document.getElementById('inventory-list');
+        listDiv.innerHTML = '';
+        
+        if (this.player.inventory.length === 0) {
+            listDiv.innerHTML = '<div style="color: #666; font-style: italic; text-align: center; padding: 20px;">No items in backpack</div>';
+            return;
+        }
+        
+        this.player.inventory.forEach((item, idx) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'inventory-item';
+            itemDiv.style.borderColor = item.getColor();
+            itemDiv.innerHTML = `
+                <div class="item-name" style="color: ${item.getColor()}">${item.name}</div>
+                <div class="item-stats">${item.getStatsText()}</div>
+                <div class="item-actions">
+                    <button onclick="game.equipFromInventory(${idx})">Equip</button>
+                    <button onclick="game.dropFromInventory(${idx})">Drop</button>
+                </div>
+            `;
+            listDiv.appendChild(itemDiv);
+        });
+    }
+    
+    equipFromInventory(idx) {
+        const item = this.player.inventory[idx];
+        if (!item) return;
+        
+        this.player.equip(item);
+        this.updateInventoryUI();
+        this.updateUI();
+    }
+    
+    unequipItem(slotType) {
+        const item = this.player[slotType];
+        if (!item) return;
+        
+        this.player.inventory.push(item);
+        this.player.unequip(slotType);
+        this.updateInventoryUI();
+        this.updateUI();
+        this.showMessage(`Unequipped ${item.name}`, item.getColor());
+    }
+    
+    dropFromInventory(idx) {
+        const item = this.player.inventory[idx];
+        if (!item) return;
+        
+        // Drop on player's current position
+        item.x = this.player.x;
+        item.y = this.player.y;
+        this.items.push(item);
+        
+        this.player.inventory.splice(idx, 1);
+        this.updateInventoryUI();
+        this.showMessage(`Dropped ${item.name}`, '#888');
+    }
+    
     async saveGame() {
         const saveData = {
             floor: this.floor,

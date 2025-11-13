@@ -158,10 +158,50 @@ export class InputHandler {
                 // TODO: Open magic menu
                 console.log('Magic menu (not implemented)');
                 break;
+            case 'i':
+            case 'I':
+                // Open inventory
+                this.game.openInventory();
+                break;
             case 'Escape':
-                // TODO: Open pause menu
-                console.log('Pause menu (not implemented)');
+                // Close inventory if open
+                const invOverlay = document.getElementById('inventory-overlay');
+                if (!invOverlay.classList.contains('hidden')) {
+                    this.game.closeInventory();
+                }
                 break;
         }
     }
 }
+
+// Setup inventory button handlers
+document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('close-inventory-btn');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            if (window.game) {
+                window.game.closeInventory();
+            }
+        });
+    }
+    
+    const inventoryBtn = document.getElementById('inventory-btn');
+    if (inventoryBtn) {
+        inventoryBtn.addEventListener('click', () => {
+            if (window.game) {
+                document.getElementById('menu-overlay').classList.add('hidden');
+                window.game.openInventory();
+            }
+        });
+    }
+    
+    // Mobile inventory button
+    const mobileInvBtn = document.getElementById('mobile-inventory-btn');
+    if (mobileInvBtn) {
+        mobileInvBtn.addEventListener('click', () => {
+            if (window.game) {
+                window.game.openInventory();
+            }
+        });
+    }
+});

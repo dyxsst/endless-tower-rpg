@@ -9,6 +9,7 @@
     <title>Endless Tower RPG</title>
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/inventory.css">
     <link rel="icon" type="image/png" href="assets/icon-192.png">
 </head>
 <body>
@@ -42,6 +43,9 @@
             </div>
         </div>
         
+        <!-- Mobile inventory button -->
+        <div id="mobile-inventory-btn" class="mobile-inventory-btn">🎒</div>
+        
         <div id="menu-overlay" class="hidden">
             <div id="menu-content">
                 <h2>Menu</h2>
@@ -50,6 +54,33 @@
                 <button id="stats-btn">Stats</button>
                 <button id="save-btn">Save Game</button>
                 <button id="quit-btn">Quit to Title</button>
+            </div>
+        </div>
+        
+        <div id="inventory-overlay" class="hidden">
+            <div id="inventory-content">
+                <h2>Inventory</h2>
+                <div id="inventory-slots">
+                    <div class="equip-slot">
+                        <label>Weapon:</label>
+                        <div id="slot-weapon" class="slot-item">Empty</div>
+                    </div>
+                    <div class="equip-slot">
+                        <label>Armor:</label>
+                        <div id="slot-armor" class="slot-item">Empty</div>
+                    </div>
+                    <div class="equip-slot">
+                        <label>Charm:</label>
+                        <div id="slot-charm" class="slot-item">Empty</div>
+                    </div>
+                    <div class="equip-slot">
+                        <label>Boots:</label>
+                        <div id="slot-boots" class="slot-item">Empty</div>
+                    </div>
+                </div>
+                <h3>Backpack</h3>
+                <div id="inventory-list"></div>
+                <button id="close-inventory-btn">Close</button>
             </div>
         </div>
         
