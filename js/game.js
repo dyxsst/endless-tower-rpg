@@ -427,6 +427,7 @@ export class Game {
         const overlay = document.getElementById('inventory-overlay');
         overlay.classList.add('hidden');
         this.gameRunning = true;
+        this.gameLoop(); // Restart the game loop
     }
     
     updateInventoryUI() {
