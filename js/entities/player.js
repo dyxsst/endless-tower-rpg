@@ -113,6 +113,10 @@ export class Player {
         this.def += 1;
         this.spd += 1;
         
+        // Restore resources
+        this.stamina = this.maxStamina;
+        this.mana = this.maxMana;
+        
         console.log(`Level up! Now level ${this.level}`);
     }
     

@@ -74,6 +74,7 @@ export class Game {
         if (isMobile) {
             document.getElementById('mobile-inventory-btn').style.setProperty('display', 'flex', 'important');
             document.getElementById('mobile-bow-btn').style.setProperty('display', 'flex', 'important');
+            document.getElementById('mobile-magic-btn').style.setProperty('display', 'flex', 'important');
         }
         
         this.updateUI();
@@ -101,6 +102,7 @@ export class Game {
         if (isMobile) {
             document.getElementById('mobile-inventory-btn').style.setProperty('display', 'flex', 'important');
             document.getElementById('mobile-bow-btn').style.setProperty('display', 'flex', 'important');
+            document.getElementById('mobile-magic-btn').style.setProperty('display', 'flex', 'important');
         }
         
         this.updateUI();
