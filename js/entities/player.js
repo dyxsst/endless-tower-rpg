@@ -97,8 +97,9 @@ export class Player {
             this.levelUp();
         }
         
-        // Restore 1 stamina on XP gain (kill)
+        // Restore 1 stamina and 1 mana on XP gain (kill)
         this.restoreStamina(1);
+        this.restoreMana(1);
     }
     
     levelUp() {
@@ -165,5 +166,9 @@ export class Player {
     
     restoreStamina(amount) {
         this.stamina = Math.min(this.maxStamina, this.stamina + amount);
+    }
+    
+    restoreMana(amount) {
+        this.mana = Math.min(this.maxMana, this.mana + amount);
     }
 }
