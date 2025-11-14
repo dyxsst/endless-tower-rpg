@@ -24,6 +24,7 @@ export class Player {
         
         // Equipment
         this.weapon = null;
+        this.bow = null;
         this.armor = null;
         this.charm = null;
         this.boots = null;
@@ -134,6 +135,7 @@ export class Player {
             mana: this.mana,
             maxMana: this.maxMana,
             weapon: this.weapon,
+            bow: this.bow,
             armor: this.armor,
             charm: this.charm,
             boots: this.boots,
@@ -148,8 +150,8 @@ export class Player {
     }
     
     hasBow() {
-        // Check if equipped weapon is a bow type
-        return this.weapon !== null && this.weapon.subtype === 'bow';
+        // Check if bow is equipped in bow slot
+        return this.bow !== null;
     }
     
     getBowRange() {

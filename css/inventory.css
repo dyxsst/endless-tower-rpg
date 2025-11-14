@@ -48,8 +48,8 @@
 }
 
 @media (max-width: 768px) {
-    .mobile-inventory-btn {
-        display: flex;
+    .mobile-inventory-btn,
+    .mobile-bow-btn {
         align-items: center;
         justify-content: center;
     }

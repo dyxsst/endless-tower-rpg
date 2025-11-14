@@ -67,6 +67,13 @@ export class Game {
         // Save initial state
         await this.saveGame();
         
+        // Show mobile buttons
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            document.getElementById('mobile-inventory-btn').style.display = 'flex';
+            document.getElementById('mobile-bow-btn').style.display = 'flex';
+        }
+        
         this.updateUI();
     }
     
@@ -86,6 +93,13 @@ export class Game {
         
         // Regenerate floor (or load if you save the full labyrinth)
         await this.generateFloor(this.floor);
+        
+        // Show mobile buttons
+        const isMobile = window.innerWidth < 768;
+        if (isMobile) {
+            document.getElementById('mobile-inventory-btn').style.display = 'flex';
+            document.getElementById('mobile-bow-btn').style.display = 'flex';
+        }
         
         this.updateUI();
     }
@@ -696,7 +710,7 @@ export class Game {
     
     updateInventoryUI() {
         // Update equipped slots
-        const slots = ['weapon', 'armor', 'charm', 'boots'];
+        const slots = ['weapon', 'bow', 'armor', 'charm', 'boots'];
         slots.forEach(slot => {
             const slotDiv = document.getElementById(`slot-${slot}`);
             const item = this.player[slot];

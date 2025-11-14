@@ -24,11 +24,12 @@ export class Item {
         switch (this.type) {
             case 'weapon':
                 this.stats.atk = Math.floor((3 + floorBonus) * mult);
-                
-                // Randomly choose between melee and bow (30% chance for bow)
-                this.subtype = Math.random() < 0.3 ? 'bow' : 'melee';
-                
                 this.name = this.generateWeaponName();
+                break;
+                
+            case 'bow':
+                this.stats.atk = Math.floor((3 + floorBonus) * mult);
+                this.name = this.generateBowName();
                 break;
                 
             case 'armor':
@@ -59,18 +60,26 @@ export class Item {
             'epic': ['Legendary', 'Ancient', 'Ethereal', 'Divine']
         };
         
-        const meleeWeapons = ['Sword', 'Blade', 'Axe', 'Mace', 'Dagger'];
-        const bows = ['Shortbow', 'Longbow', 'Recurve Bow', 'Hunting Bow', 'War Bow'];
-        
+        const bases = ['Sword', 'Blade', 'Axe', 'Mace', 'Dagger'];
         const prefix = prefixes[this.rarity][Math.floor(Math.random() * prefixes[this.rarity].length)];
+        const base = bases[Math.floor(Math.random() * bases.length)];
         
-        if (this.subtype === 'bow') {
-            const base = bows[Math.floor(Math.random() * bows.length)];
-            return `${prefix} ${base}`;
-        } else {
-            const base = meleeWeapons[Math.floor(Math.random() * meleeWeapons.length)];
-            return `${prefix} ${base}`;
-        }
+        return `${prefix} ${base}`;
+    }
+    
+    generateBowName() {
+        const prefixes = {
+            'common': ['Worn', 'Simple', 'Basic', 'Crude'],
+            'uncommon': ['Fine', 'Sturdy', 'Keen', 'Swift'],
+            'rare': ['Superior', 'Masterwork', 'Deadly', 'Precision'],
+            'epic': ['Legendary', 'Ancient', 'Divine', 'Ethereal']
+        };
+        
+        const bases = ['Shortbow', 'Longbow', 'Recurve Bow', 'Hunting Bow', 'War Bow'];
+        const prefix = prefixes[this.rarity][Math.floor(Math.random() * prefixes[this.rarity].length)];
+        const base = bases[Math.floor(Math.random() * bases.length)];
+        
+        return `${prefix} ${base}`;
     }
     
     generateArmorName() {
@@ -187,7 +196,7 @@ export class Item {
     }
     
     static rollType() {
-        const types = ['weapon', 'armor', 'charm', 'boots'];
+        const types = ['weapon', 'bow', 'armor', 'charm', 'boots'];
         return types[Math.floor(Math.random() * types.length)];
     }
 }
