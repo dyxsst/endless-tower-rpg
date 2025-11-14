@@ -45,15 +45,16 @@ export class Enemy {
     
     getBaseStats() {
         const stats = {
-            'walker': { hp: 30, atk: 8, def: 3, spd: 5, xp: 15, gold: 5, symbol: 'W', range: 0 },
-            'archer': { hp: 20, atk: 12, def: 2, spd: 6, xp: 20, gold: 8, symbol: 'A', range: 4 },
-            'mage': { hp: 25, atk: 15, def: 1, spd: 4, xp: 25, gold: 10, symbol: 'M', range: 3 },
-            'protector': { hp: 50, atk: 10, def: 8, spd: 3, xp: 35, gold: 15, symbol: 'P', range: 0 },
-            'boss': { hp: 80, atk: 18, def: 10, spd: 4, xp: 100, gold: 50, symbol: 'B', range: 0 }
+            'walker': { hp: 30, atk: 8, def: 3, spd: 5, xp: 15, gold: 5, symbol: '●', color: '#94a3b8', range: 0 },
+            'archer': { hp: 20, atk: 12, def: 2, spd: 6, xp: 20, gold: 8, symbol: '▲', color: '#22c55e', range: 4 },
+            'mage': { hp: 25, atk: 15, def: 1, spd: 4, xp: 25, gold: 10, symbol: '★', color: '#a855f7', range: 3 },
+            'protector': { hp: 50, atk: 10, def: 8, spd: 3, xp: 35, gold: 15, symbol: '▣', color: '#3b82f6', range: 0 },
+            'boss': { hp: 80, atk: 18, def: 10, spd: 4, xp: 100, gold: 50, symbol: '♛', color: '#ef4444', range: 0 }
         };
         
         const stat = stats[this.type] || stats['walker'];
         this.symbol = stat.symbol;
+        this.color = stat.color;
         this.range = stat.range || 0;
         return stat;
     }

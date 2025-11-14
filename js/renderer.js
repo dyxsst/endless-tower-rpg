@@ -326,12 +326,16 @@ export class Renderer {
         const screenX = (enemy.x + offsetX) * this.tileSize;
         const screenY = (enemy.y + offsetY) * this.tileSize;
         
-        this.ctx.fillStyle = this.colors.enemy;
+        // Use enemy-specific color or fall back to default
+        const enemyColor = enemy.color || this.colors.enemy;
+        
+        // Background tile with enemy color
+        this.ctx.fillStyle = enemyColor + '40'; // 25% opacity
         this.ctx.fillRect(screenX + 2, screenY + 2, this.tileSize - 4, this.tileSize - 4);
         
-        // Enemy symbol
-        this.ctx.fillStyle = '#fff';
-        this.ctx.font = 'bold 12px monospace';
+        // Enemy symbol with full color
+        this.ctx.fillStyle = enemyColor;
+        this.ctx.font = 'bold 14px Arial';
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         this.ctx.fillText(enemy.symbol || 'E', screenX + this.tileSize / 2, screenY + this.tileSize / 2);
