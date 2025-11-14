@@ -45,7 +45,13 @@ body {
     padding: 15px;
     border: 2px solid #666;
     border-radius: 5px;
-    min-width: 200px;
+    display: flex;
+    gap: 20px;
+}
+
+.stats-column {
+    display: flex;
+    flex-direction: column;
 }
 
 .stat-row {
@@ -53,6 +59,7 @@ body {
     justify-content: space-between;
     margin: 5px 0;
     font-size: 14px;
+    white-space: nowrap;
 }
 
 .stat-label {
