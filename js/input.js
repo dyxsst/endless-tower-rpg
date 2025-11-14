@@ -53,6 +53,22 @@ export class InputHandler {
                 return;
             }
             
+            // Check if in magic targeting mode
+            if (this.game.magic && this.game.magic.targetingMode) {
+                // Determine swipe direction for casting
+                const threshold = 30;
+                if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        // Horizontal swipe
+                        this.game.magic.selectDirection(dx > 0 ? 1 : -1, 0);
+                    } else {
+                        // Vertical swipe
+                        this.game.magic.selectDirection(0, dy > 0 ? 1 : -1);
+                    }
+                }
+                return;
+            }
+            
             // Normal movement
             // Determine swipe direction
             const threshold = 30;
@@ -204,8 +220,9 @@ export class InputHandler {
                 this.game.rangedCombat.enterTargetingMode();
                 break;
             case 'm':
-                // TODO: Open magic menu
-                console.log('Magic menu (not implemented)');
+            case 'M':
+                // Cast Firebolt spell
+                this.game.magic.enterTargetingMode('firebolt');
                 break;
             case 'i':
             case 'I':
@@ -271,6 +288,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const success = window.game.rangedCombat.enterTargetingMode();
                 if (success) {
                     mobileBowBtn.classList.add('targeting');
+                }
+            }
+        });
+    }
+    
+    // Mobile magic button
+    const mobileMagicBtn = document.getElementById('mobile-magic-btn');
+    if (mobileMagicBtn) {
+        mobileMagicBtn.addEventListener('click', () => {
+            if (window.game && window.game.magic) {
+                const success = window.game.magic.enterTargetingMode('firebolt');
+                if (success) {
+                    mobileMagicBtn.classList.add('targeting');
                 }
             }
         });

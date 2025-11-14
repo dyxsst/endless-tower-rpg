@@ -155,12 +155,13 @@ export class Renderer {
         }
     }
     
-    showProjectile(fromX, fromY, toX, toY) {
+    showProjectile(fromX, fromY, toX, toY, color = '#ffa500') {
         this.projectiles.push({
             fromX: fromX,
             fromY: fromY,
             toX: toX,
             toY: toY,
+            color: color,
             progress: 0,
             speed: 0.3
         });
@@ -182,12 +183,12 @@ export class Renderer {
             const currentX = proj.fromX + (proj.toX - proj.fromX) * proj.progress;
             const currentY = proj.fromY + (proj.toY - proj.fromY) * proj.progress;
             
-            // Render arrow
+            // Render projectile
             const screenX = (currentX + offsetX) * this.tileSize + this.tileSize / 2;
             const screenY = (currentY + offsetY) * this.tileSize + this.tileSize / 2;
             
             this.ctx.save();
-            this.ctx.fillStyle = '#ffa500';
+            this.ctx.fillStyle = proj.color || '#ffa500';
             this.ctx.strokeStyle = '#000';
             this.ctx.lineWidth = 2;
             this.ctx.beginPath();

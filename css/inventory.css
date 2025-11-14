@@ -92,6 +92,42 @@
     border-color: #ffa500;
 }
 
+/* Magic button for mobile */
+.mobile-magic-btn {
+    display: none !important; /* Hidden by default, shown via JS */
+    position: fixed;
+    bottom: 140px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    background: rgba(50, 20, 80, 0.8);
+    border: 2px solid #8844cc;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 24px;
+    z-index: 1000;
+    cursor: pointer;
+    user-select: none;
+    align-items: center;
+    justify-content: center;
+}
+
+.mobile-magic-btn:active {
+    background: rgba(90, 40, 130, 0.9);
+    border-color: #aa44ff;
+}
+
+.mobile-magic-btn.targeting {
+    background: #6622aa;
+    border-color: #aa44ff;
+    animation: pulse-magic 1s infinite;
+}
+
+@keyframes pulse-magic {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
 .mobile-bow-btn.targeting {
     background: rgba(255, 165, 0, 0.8);
     border-color: #ffa500;

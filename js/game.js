@@ -3,6 +3,7 @@ import { Labyrinth } from './labyrinth.js';
 import { Renderer } from './renderer.js';
 import { InputHandler } from './input.js';
 import { RangedCombat } from './combat/ranged.js';
+import { MagicSystem } from './combat/magic.js';
 
 export class Game {
     constructor(database) {
@@ -21,6 +22,7 @@ export class Game {
         this.renderer = new Renderer(this.canvas, this.ctx);
         this.input = new InputHandler(this);
         this.rangedCombat = new RangedCombat(this);
+        this.magic = new MagicSystem(this);
         
         // Turn management
         this.turnCount = 0;
@@ -662,6 +664,7 @@ export class Game {
         document.getElementById('player-xp').textContent = `${this.player.xp}/${this.player.xpToLevel}`;
         document.getElementById('player-gold').textContent = this.player.gold;
         document.getElementById('player-stamina').textContent = `${this.player.stamina}/${this.player.maxStamina}`;
+        document.getElementById('player-mana').textContent = `${this.player.mana}/${this.player.maxMana}`;
         
         // Update equipment display (add to stats panel)
         const statsPanel = document.getElementById('stats-panel');
