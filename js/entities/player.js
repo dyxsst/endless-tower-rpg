@@ -39,11 +39,22 @@ export class Player {
     }
     
     equip(item) {
+        console.log(`Attempting to equip ${item.name} (${item.type})`);
+        console.log('Current equipment:', {
+            weapon: this.weapon?.name,
+            bow: this.bow?.name,
+            armor: this.armor?.name,
+            charm: this.charm?.name,
+            boots: this.boots?.name
+        });
+        
         // Unequip current item in slot
         const currentItem = this[item.type];
         if (currentItem) {
+            console.log(`Unequipping current ${item.type}: ${currentItem.name}`);
             this.unequip(item.type);
             this.inventory.push(currentItem);
+            console.log(`Moved ${currentItem.name} to inventory`);
         }
         
         // Equip new item
@@ -63,9 +74,17 @@ export class Player {
         const invIdx = this.inventory.indexOf(item);
         if (invIdx >= 0) {
             this.inventory.splice(invIdx, 1);
+            console.log(`Removed ${item.name} from inventory`);
         }
         
-        console.log(`Equipped ${item.name}`);
+        console.log(`Equipped ${item.name} successfully`);
+        console.log('New equipment:', {
+            weapon: this.weapon?.name,
+            bow: this.bow?.name,
+            armor: this.armor?.name,
+            charm: this.charm?.name,
+            boots: this.boots?.name
+        });
     }
     
     unequip(slotType) {

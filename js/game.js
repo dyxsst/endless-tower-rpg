@@ -714,6 +714,7 @@ export class Game {
         
         const equip = [];
         if (this.player.weapon) equip.push(`⚔️ ${this.player.weapon.name}`);
+        if (this.player.bow) equip.push(`🏹 ${this.player.bow.name}`);
         if (this.player.armor) equip.push(`🛡️ ${this.player.armor.name}`);
         if (this.player.charm) equip.push(`📿 ${this.player.charm.name}`);
         if (this.player.boots) equip.push(`👢 ${this.player.boots.name}`);
