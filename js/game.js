@@ -70,8 +70,8 @@ export class Game {
         // Show mobile buttons
         const isMobile = window.innerWidth < 768;
         if (isMobile) {
-            document.getElementById('mobile-inventory-btn').style.display = 'flex';
-            document.getElementById('mobile-bow-btn').style.display = 'flex';
+            document.getElementById('mobile-inventory-btn').style.setProperty('display', 'flex', 'important');
+            document.getElementById('mobile-bow-btn').style.setProperty('display', 'flex', 'important');
         }
         
         this.updateUI();
@@ -97,8 +97,8 @@ export class Game {
         // Show mobile buttons
         const isMobile = window.innerWidth < 768;
         if (isMobile) {
-            document.getElementById('mobile-inventory-btn').style.display = 'flex';
-            document.getElementById('mobile-bow-btn').style.display = 'flex';
+            document.getElementById('mobile-inventory-btn').style.setProperty('display', 'flex', 'important');
+            document.getElementById('mobile-bow-btn').style.setProperty('display', 'flex', 'important');
         }
         
         this.updateUI();
@@ -657,21 +657,11 @@ export class Game {
     
     updateUI() {
         document.getElementById('floor-number').textContent = this.floor;
+        document.getElementById('player-level').textContent = this.player.level;
         document.getElementById('player-hp').textContent = `${this.player.hp}/${this.player.maxHp}`;
-        document.getElementById('player-xp').textContent = this.player.xp;
+        document.getElementById('player-xp').textContent = `${this.player.xp}/${this.player.xpToLevel}`;
         document.getElementById('player-gold').textContent = this.player.gold;
-        
-        // Update stamina display
-        let staminaDiv = document.getElementById('stamina-display');
-        if (!staminaDiv) {
-            const statsPanel = document.getElementById('stats-panel');
-            staminaDiv = document.createElement('div');
-            staminaDiv.id = 'stamina-display';
-            staminaDiv.className = 'stat-row';
-            staminaDiv.style.marginTop = '5px';
-            statsPanel.insertBefore(staminaDiv, statsPanel.children[3]);
-        }
-        staminaDiv.innerHTML = `<span class="stat-label">Stamina:</span> ${this.player.stamina}/${this.player.maxStamina}`;
+        document.getElementById('player-stamina').textContent = `${this.player.stamina}/${this.player.maxStamina}`;
         
         // Update equipment display (add to stats panel)
         const statsPanel = document.getElementById('stats-panel');

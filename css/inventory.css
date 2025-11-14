@@ -31,7 +31,7 @@
 
 /* Inventory button for mobile */
 .mobile-inventory-btn {
-    display: none;
+    display: none !important; /* Hidden by default, shown via JS */
     position: fixed;
     bottom: 20px;
     left: 20px;
@@ -50,6 +50,7 @@
 @media (max-width: 768px) {
     .mobile-inventory-btn,
     .mobile-bow-btn {
+        /* Will be shown via JS with display: flex !important */
         align-items: center;
         justify-content: center;
     }
@@ -62,7 +63,7 @@
 
 /* Bow button for mobile */
 .mobile-bow-btn {
-    display: none;
+    display: none !important; /* Hidden by default, shown via JS */
     position: fixed;
     bottom: 80px;
     left: 20px;
