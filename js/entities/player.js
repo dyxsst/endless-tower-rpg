@@ -148,8 +148,8 @@ export class Player {
     }
     
     hasBow() {
-        // Check if weapon is equipped (simplified - all weapons can shoot for now)
-        return this.weapon !== null;
+        // Check if equipped weapon is a bow type
+        return this.weapon !== null && this.weapon.subtype === 'bow';
     }
     
     getBowRange() {

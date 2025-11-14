@@ -24,6 +24,10 @@ export class Item {
         switch (this.type) {
             case 'weapon':
                 this.stats.atk = Math.floor((3 + floorBonus) * mult);
+                
+                // Randomly choose between melee and bow (30% chance for bow)
+                this.subtype = Math.random() < 0.3 ? 'bow' : 'melee';
+                
                 this.name = this.generateWeaponName();
                 break;
                 
@@ -55,11 +59,18 @@ export class Item {
             'epic': ['Legendary', 'Ancient', 'Ethereal', 'Divine']
         };
         
-        const bases = ['Sword', 'Blade', 'Axe', 'Mace', 'Dagger'];
-        const prefix = prefixes[this.rarity][Math.floor(Math.random() * prefixes[this.rarity].length)];
-        const base = bases[Math.floor(Math.random() * bases.length)];
+        const meleeWeapons = ['Sword', 'Blade', 'Axe', 'Mace', 'Dagger'];
+        const bows = ['Shortbow', 'Longbow', 'Recurve Bow', 'Hunting Bow', 'War Bow'];
         
-        return `${prefix} ${base}`;
+        const prefix = prefixes[this.rarity][Math.floor(Math.random() * prefixes[this.rarity].length)];
+        
+        if (this.subtype === 'bow') {
+            const base = bows[Math.floor(Math.random() * bows.length)];
+            return `${prefix} ${base}`;
+        } else {
+            const base = meleeWeapons[Math.floor(Math.random() * meleeWeapons.length)];
+            return `${prefix} ${base}`;
+        }
     }
     
     generateArmorName() {
