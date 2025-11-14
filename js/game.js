@@ -329,14 +329,30 @@ export class Game {
     processTurn() {
         this.turnCount++;
         
+        // Process player status effects at end of their turn
+        if (this.player.statusEffects) {
+            this.player.statusEffects.processTurn(this);
+            
+            // Check if player died from status effects
+            if (this.player.hp <= 0) {
+                this.gameOver();
+                return;
+            }
+        }
+        
         // Process enemy turns
         this.enemies.forEach(enemy => {
             if (enemy.hp > 0) {
                 enemy.takeTurn(this.player, this.labyrinth, this.enemies, this);
+                
+                // Process enemy status effects after their turn
+                if (enemy.statusEffects) {
+                    enemy.statusEffects.processTurn(this);
+                }
             }
         });
         
-        // Remove dead enemies
+        // Remove dead enemies (including those killed by status effects)
         this.enemies = this.enemies.filter(e => e.hp > 0);
         
         // Check win/loss conditions
@@ -673,6 +689,17 @@ export class Game {
         document.getElementById('player-gold').textContent = this.player.gold;
         document.getElementById('player-stamina').textContent = `${this.player.stamina}/${this.player.maxStamina}`;
         document.getElementById('player-mana').textContent = `${this.player.mana}/${this.player.maxMana}`;
+        
+        // Update status effects display
+        const statusRow = document.getElementById('player-status-row');
+        const statusSpan = document.getElementById('player-status');
+        if (this.player.statusEffects && this.player.statusEffects.activeEffects.length > 0) {
+            const icons = this.player.statusEffects.getStatusIcons();
+            statusSpan.innerHTML = icons.map(s => `${s.icon} ${s.name} (${s.turns})`).join(' ');
+            statusRow.style.display = 'flex';
+        } else {
+            statusRow.style.display = 'none';
+        }
         
         // Update equipment display (add to stats panel)
         const statsPanel = document.getElementById('stats-panel');

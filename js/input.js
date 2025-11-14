@@ -224,6 +224,22 @@ export class InputHandler {
                 // Cast Firebolt spell
                 this.game.magic.enterTargetingMode('firebolt');
                 break;
+            case '1':
+                // Firebolt (hotkey)
+                this.game.magic.enterTargetingMode('firebolt');
+                break;
+            case '2':
+                // Fireball (hotkey)
+                this.game.magic.enterTargetingMode('fireball');
+                break;
+            case '3':
+                // Frost (hotkey)
+                this.game.magic.enterTargetingMode('frost');
+                break;
+            case '4':
+                // Spark (hotkey)
+                this.game.magic.enterTargetingMode('spark');
+                break;
             case 'i':
             case 'I':
                 // Open inventory
@@ -293,16 +309,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Mobile magic button
+    // Mobile magic button - now opens spell wheel
     const mobileMagicBtn = document.getElementById('mobile-magic-btn');
-    if (mobileMagicBtn) {
+    const spellWheelContainer = document.getElementById('spell-wheel-container');
+    
+    if (mobileMagicBtn && spellWheelContainer) {
         mobileMagicBtn.addEventListener('click', () => {
             if (window.game && window.game.magic) {
-                const success = window.game.magic.enterTargetingMode('firebolt');
-                if (success) {
-                    mobileMagicBtn.classList.add('targeting');
-                }
+                // Toggle spell wheel
+                spellWheelContainer.classList.toggle('active');
+                
+                // Update spell availability based on mana
+                const player = window.game.player;
+                document.querySelectorAll('.spell-option').forEach(option => {
+                    const spellName = option.getAttribute('data-spell');
+                    const spell = window.game.magic.spells[spellName];
+                    
+                    if (spell && player.mana < spell.manaCost) {
+                        option.classList.add('disabled');
+                    } else {
+                        option.classList.remove('disabled');
+                    }
+                });
             }
+        });
+        
+        // Spell wheel close button
+        const spellWheelClose = document.querySelector('.spell-wheel-close');
+        if (spellWheelClose) {
+            spellWheelClose.addEventListener('click', (e) => {
+                e.stopPropagation();
+                spellWheelContainer.classList.remove('active');
+            });
+        }
+        
+        // Spell selection
+        document.querySelectorAll('.spell-option').forEach(option => {
+            option.addEventListener('click', () => {
+                if (option.classList.contains('disabled')) return;
+                
+                const spellName = option.getAttribute('data-spell');
+                if (window.game && window.game.magic) {
+                    const success = window.game.magic.enterTargetingMode(spellName);
+                    if (success) {
+                        spellWheelContainer.classList.remove('active');
+                        mobileMagicBtn.classList.add('targeting');
+                    }
+                }
+            });
         });
     }
 });

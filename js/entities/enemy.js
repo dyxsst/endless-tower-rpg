@@ -1,3 +1,5 @@
+import { StatusEffectManager } from '../combat/statusEffects.js';
+
 export class Enemy {
     constructor(x, y, type, floor) {
         this.x = x;
@@ -14,6 +16,9 @@ export class Enemy {
         
         this.xpValue = 0;
         this.goldValue = 0;
+        
+        // Status effects
+        this.statusEffects = new StatusEffectManager(this);
         
         this.initStats();
     }

@@ -10,6 +10,7 @@
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/inventory.css">
+    <link rel="stylesheet" href="css/spellWheel.css">
     <link rel="icon" type="image/png" href="assets/icon-192.png">
 </head>
 <body>
@@ -48,6 +49,10 @@
                         <span class="stat-label">Mana:</span>
                         <span id="player-mana">10/10</span>
                     </div>
+                    <div class="stat-row" id="player-status-row" style="display: none;">
+                        <span class="stat-label">Status:</span>
+                        <span id="player-status"></span>
+                    </div>
                 </div>
             </div>
             
@@ -55,7 +60,7 @@
                 <p>Arrow Keys / WASD: Move</p>
                 <p>Space: Wait Turn</p>
                 <p>R: Ranged Attack</p>
-                <p>M: Magic Menu</p>
+                <p>M/1-4: Magic Spells</p>
             </div>
         </div>
         
@@ -115,6 +120,34 @@
                 <h2>Shop - Floor <span id="shop-floor">1</span></h2>
                 <div id="shop-inventory"></div>
                 <button id="close-shop-btn">Close Shop</button>
+            </div>
+        </div>
+        
+        <!-- Spell Selection Wheel (Mobile) -->
+        <div id="spell-wheel-container" class="spell-wheel-container">
+            <div class="spell-wheel">
+                <div class="spell-wheel-center">Select<br>Spell</div>
+                <div class="spell-option" data-spell="firebolt">
+                    <div class="spell-icon">🔥</div>
+                    <div class="spell-name">Firebolt</div>
+                    <div class="spell-cost">3 MP</div>
+                </div>
+                <div class="spell-option" data-spell="fireball">
+                    <div class="spell-icon">💥</div>
+                    <div class="spell-name">Fireball</div>
+                    <div class="spell-cost">5 MP</div>
+                </div>
+                <div class="spell-option" data-spell="frost">
+                    <div class="spell-icon">❄️</div>
+                    <div class="spell-name">Frost</div>
+                    <div class="spell-cost">4 MP</div>
+                </div>
+                <div class="spell-option" data-spell="spark">
+                    <div class="spell-icon">⚡</div>
+                    <div class="spell-name">Spark</div>
+                    <div class="spell-cost">4 MP</div>
+                </div>
+                <button class="spell-wheel-close">×</button>
             </div>
         </div>
         

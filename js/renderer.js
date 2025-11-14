@@ -335,6 +335,18 @@ export class Renderer {
         this.ctx.textAlign = 'center';
         this.ctx.textBaseline = 'middle';
         this.ctx.fillText(enemy.symbol || 'E', screenX + this.tileSize / 2, screenY + this.tileSize / 2);
+        
+        // Render status effect icons if any
+        if (enemy.statusEffects && enemy.statusEffects.activeEffects.length > 0) {
+            const icons = enemy.statusEffects.getStatusIcons();
+            icons.forEach((status, index) => {
+                const iconX = screenX + 2 + (index * 6);
+                const iconY = screenY + 2;
+                
+                this.ctx.font = '8px Arial';
+                this.ctx.fillText(status.icon, iconX, iconY + 4);
+            });
+        }
     }
     
     renderItem(item, offsetX, offsetY) {

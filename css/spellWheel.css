@@ -1,0 +1,161 @@
+/* Spell Selection Wheel for Mobile */
+
+.spell-wheel-container {
+    display: none;
+    position: fixed;
+    bottom: 280px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1002;
+}
+
+.spell-wheel {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(30, 10, 50, 0.95), rgba(10, 0, 30, 0.98));
+    border: 3px solid #aa44ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 30px rgba(170, 68, 255, 0.6);
+}
+
+.spell-wheel-center {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: rgba(10, 0, 30, 0.9);
+    border: 2px solid #aa44ff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aa44ff;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.spell-option {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: rgba(50, 20, 80, 0.9);
+    border: 2px solid #8844cc;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+}
+
+.spell-option.disabled {
+    opacity: 0.4;
+    background: rgba(30, 30, 30, 0.9);
+    border-color: #555;
+    cursor: not-allowed;
+}
+
+.spell-option:not(.disabled):active {
+    transform: scale(0.9);
+    background: rgba(90, 40, 130, 0.95);
+    border-color: #aa44ff;
+}
+
+.spell-icon {
+    font-size: 28px;
+    line-height: 1;
+}
+
+.spell-name {
+    font-size: 9px;
+    color: #fff;
+    margin-top: 2px;
+    font-weight: bold;
+}
+
+.spell-cost {
+    font-size: 8px;
+    color: #4af;
+    font-weight: bold;
+}
+
+/* Position spell options in circle */
+.spell-option:nth-child(1) { /* Firebolt - Top */
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.spell-option:nth-child(2) { /* Fireball - Right */
+    top: 50%;
+    right: -10px;
+    transform: translateY(-50%);
+}
+
+.spell-option:nth-child(3) { /* Frost - Bottom */
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.spell-option:nth-child(4) { /* Spark - Left */
+    top: 50%;
+    left: -10px;
+    transform: translateY(-50%);
+}
+
+/* Close button */
+.spell-wheel-close {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    width: 40px;
+    height: 40px;
+    background: rgba(200, 0, 0, 0.9);
+    border: 2px solid #ff4444;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.spell-wheel-close:active {
+    background: rgba(255, 0, 0, 0.95);
+    transform: scale(0.9);
+}
+
+/* Show/hide animation */
+@keyframes spellWheelAppear {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.5);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
+}
+
+.spell-wheel-container.active {
+    display: block;
+    animation: spellWheelAppear 0.2s ease-out;
+}
+
+/* Desktop - hide spell wheel, use keyboard */
+@media (min-width: 769px) {
+    .spell-wheel-container {
+        display: none !important;
+    }
+}

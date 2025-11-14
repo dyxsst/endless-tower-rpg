@@ -1,3 +1,5 @@
+import { StatusEffectManager } from '../combat/statusEffects.js';
+
 export class Player {
     constructor(x, y) {
         this.x = x;
@@ -31,6 +33,9 @@ export class Player {
         
         // Inventory
         this.inventory = [];
+        
+        // Status effects
+        this.statusEffects = new StatusEffectManager(this);
     }
     
     equip(item) {
