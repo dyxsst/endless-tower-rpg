@@ -124,9 +124,36 @@ export class InputHandler {
     handleKeyPress(e) {
         // Prevent default for game keys
         const gameKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 
-                         'w', 'a', 's', 'd', ' ', 'r', 'm'];
+                         'w', 'a', 's', 'd', ' ', 'r', 'm', 'i', 'I', 'Escape'];
         if (gameKeys.includes(e.key.toLowerCase())) {
             e.preventDefault();
+        }
+        
+        // Check if in ranged targeting mode
+        if (this.game.rangedCombat.targetingMode) {
+            const moveActions = {
+                'ArrowUp': { dx: 0, dy: -1 },
+                'ArrowDown': { dx: 0, dy: 1 },
+                'ArrowLeft': { dx: -1, dy: 0 },
+                'ArrowRight': { dx: 1, dy: 0 },
+                'w': { dx: 0, dy: -1 },
+                's': { dx: 0, dy: 1 },
+                'a': { dx: -1, dy: 0 },
+                'd': { dx: 1, dy: 0 }
+            };
+            
+            if (moveActions[e.key]) {
+                this.game.rangedCombat.selectDirection(moveActions[e.key].dx, moveActions[e.key].dy);
+                return;
+            }
+            
+            if (e.key === 'Escape') {
+                this.game.rangedCombat.exitTargetingMode();
+                this.game.showMessage('Cancelled');
+                return;
+            }
+            
+            return; // Block other actions while targeting
         }
         
         // Movement
@@ -155,8 +182,9 @@ export class InputHandler {
                 this.game.playerAction({ type: 'wait' });
                 break;
             case 'r':
-                // TODO: Enter ranged mode
-                console.log('Ranged attack mode (not implemented)');
+            case 'R':
+                // Enter ranged mode
+                this.game.rangedCombat.enterTargetingMode();
                 break;
             case 'm':
                 // TODO: Open magic menu

@@ -23,6 +23,9 @@ export class Renderer {
         // Damage numbers
         this.damageNumbers = [];
         
+        // Projectiles
+        this.projectiles = [];
+        
         // Colors
         this.colors = {
             wall: '#333',
@@ -104,6 +107,9 @@ export class Renderer {
         
         // Render damage numbers
         this.renderDamageNumbers(offsetX, offsetY);
+        
+        // Render projectiles
+        this.renderProjectiles(offsetX, offsetY);
     }
     
     showDamageNumber(x, y, amount, color) {
@@ -145,6 +151,49 @@ export class Renderer {
             this.ctx.lineWidth = 3;
             this.ctx.strokeText(`-${dmg.amount}`, screenX, screenY);
             this.ctx.fillText(`-${dmg.amount}`, screenX, screenY);
+            this.ctx.restore();
+        }
+    }
+    
+    showProjectile(fromX, fromY, toX, toY) {
+        this.projectiles.push({
+            fromX: fromX,
+            fromY: fromY,
+            toX: toX,
+            toY: toY,
+            progress: 0,
+            speed: 0.3
+        });
+    }
+    
+    renderProjectiles(offsetX, offsetY) {
+        for (let i = this.projectiles.length - 1; i >= 0; i--) {
+            const proj = this.projectiles[i];
+            
+            // Update
+            proj.progress += proj.speed;
+            
+            if (proj.progress >= 1.0) {
+                this.projectiles.splice(i, 1);
+                continue;
+            }
+            
+            // Interpolate position
+            const currentX = proj.fromX + (proj.toX - proj.fromX) * proj.progress;
+            const currentY = proj.fromY + (proj.toY - proj.fromY) * proj.progress;
+            
+            // Render arrow
+            const screenX = (currentX + offsetX) * this.tileSize + this.tileSize / 2;
+            const screenY = (currentY + offsetY) * this.tileSize + this.tileSize / 2;
+            
+            this.ctx.save();
+            this.ctx.fillStyle = '#ffa500';
+            this.ctx.strokeStyle = '#000';
+            this.ctx.lineWidth = 2;
+            this.ctx.beginPath();
+            this.ctx.arc(screenX, screenY, 3, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
             this.ctx.restore();
         }
     }

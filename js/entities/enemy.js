@@ -22,11 +22,11 @@ export class Enemy {
         const baseStats = this.getBaseStats();
         const floorMultiplier = 1 + (this.floor - 1) * 0.15;
         
-        // Apply boss modifier if boss type (HP ×1.6, ATK ×1.2, DEF ×1.2)
+        // Apply boss modifier if boss type (reduced from GDD for better balance)
         const isBoss = this.type === 'boss';
-        const hpMod = isBoss ? 1.6 : 1.0;
-        const atkMod = isBoss ? 1.2 : 1.0;
-        const defMod = isBoss ? 1.2 : 1.0;
+        const hpMod = isBoss ? 1.4 : 1.0;  // Reduced from 1.6
+        const atkMod = isBoss ? 1.15 : 1.0; // Reduced from 1.2
+        const defMod = isBoss ? 1.15 : 1.0; // Reduced from 1.2
         
         this.maxHp = Math.floor(baseStats.hp * floorMultiplier * hpMod);
         this.hp = this.maxHp;

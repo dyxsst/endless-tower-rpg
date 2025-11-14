@@ -138,6 +138,35 @@ export class Item {
         return Math.floor(total);
     }
     
+    getStatComparison(equippedItem) {
+        // Compare this item to equipped item, return colored diff text
+        if (!equippedItem) {
+            return this.getStatsText();
+        }
+        
+        const parts = [];
+        const statTypes = ['atk', 'def', 'hp', 'spd', 'crit'];
+        const labels = { atk: 'ATK', def: 'DEF', hp: 'HP', spd: 'SPD', crit: 'CRIT' };
+        
+        statTypes.forEach(stat => {
+            const newVal = this.stats[stat] || 0;
+            const oldVal = equippedItem.stats[stat] || 0;
+            const diff = newVal - oldVal;
+            
+            if (newVal > 0) {
+                let text = `${newVal} ${labels[stat]}`;
+                if (diff > 0) {
+                    text += ` <span style="color: #4f4">(+${diff})</span>`;
+                } else if (diff < 0) {
+                    text += ` <span style="color: #f44">(${diff})</span>`;
+                }
+                parts.push(text);
+            }
+        });
+        
+        return parts.join(', ');
+    }
+    
     static rollRarity() {
         const roll = Math.random() * 100;
         if (roll < 70) return 'common';

@@ -2,6 +2,7 @@ import { Player } from './entities/player.js';
 import { Labyrinth } from './labyrinth.js';
 import { Renderer } from './renderer.js';
 import { InputHandler } from './input.js';
+import { RangedCombat } from './combat/ranged.js';
 
 export class Game {
     constructor(database) {
@@ -19,6 +20,7 @@ export class Game {
         // Systems
         this.renderer = new Renderer(this.canvas, this.ctx);
         this.input = new InputHandler(this);
+        this.rangedCombat = new RangedCombat(this);
         
         // Turn management
         this.turnCount = 0;
@@ -486,9 +488,14 @@ export class Game {
                 const itemDiv = document.createElement('div');
                 itemDiv.className = 'shop-item';
                 itemDiv.style.borderColor = item.getColor();
+                
+                // Get comparison with equipped item of same type
+                const equippedItem = this.player[item.type];
+                const statsDisplay = item.getStatComparison(equippedItem);
+                
                 itemDiv.innerHTML = `
                     <div class="item-name" style="color: ${item.getColor()}">${item.name}</div>
-                    <div class="item-stats">${item.getStatsText()}</div>
+                    <div class="item-stats">${statsDisplay}</div>
                     <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
                         <span style="color: #ffa500; font-weight: bold;">${item.price} gold</span>
                         <button onclick="game.buyItem(${idx})" class="shop-buy-btn">Buy</button>
@@ -640,6 +647,18 @@ export class Game {
         document.getElementById('player-xp').textContent = this.player.xp;
         document.getElementById('player-gold').textContent = this.player.gold;
         
+        // Update stamina display
+        let staminaDiv = document.getElementById('stamina-display');
+        if (!staminaDiv) {
+            const statsPanel = document.getElementById('stats-panel');
+            staminaDiv = document.createElement('div');
+            staminaDiv.id = 'stamina-display';
+            staminaDiv.className = 'stat-row';
+            staminaDiv.style.marginTop = '5px';
+            statsPanel.insertBefore(staminaDiv, statsPanel.children[3]);
+        }
+        staminaDiv.innerHTML = `<span class="stat-label">Stamina:</span> ${this.player.stamina}/${this.player.maxStamina}`;
+        
         // Update equipment display (add to stats panel)
         const statsPanel = document.getElementById('stats-panel');
         let equipDiv = document.getElementById('equipment-display');
@@ -709,9 +728,14 @@ export class Game {
             const itemDiv = document.createElement('div');
             itemDiv.className = 'inventory-item';
             itemDiv.style.borderColor = item.getColor();
+            
+            // Get comparison with equipped item of same type
+            const equippedItem = this.player[item.type];
+            const statsDisplay = item.getStatComparison(equippedItem);
+            
             itemDiv.innerHTML = `
                 <div class="item-name" style="color: ${item.getColor()}">${item.name}</div>
-                <div class="item-stats">${item.getStatsText()}</div>
+                <div class="item-stats">${statsDisplay}</div>
                 <div class="item-actions">
                     <button onclick="game.equipFromInventory(${idx})">Equip</button>
                     <button onclick="game.dropFromInventory(${idx})">Drop</button>

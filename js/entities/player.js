@@ -95,6 +95,9 @@ export class Player {
         while (this.xp >= this.xpToLevel) {
             this.levelUp();
         }
+        
+        // Restore 1 stamina on XP gain (kill)
+        this.restoreStamina(1);
     }
     
     levelUp() {
@@ -142,5 +145,19 @@ export class Player {
         const player = new Player(data.x, data.y);
         Object.assign(player, data);
         return player;
+    }
+    
+    hasBow() {
+        // Check if weapon is equipped (simplified - all weapons can shoot for now)
+        return this.weapon !== null;
+    }
+    
+    getBowRange() {
+        // Default range is 4 tiles
+        return 4;
+    }
+    
+    restoreStamina(amount) {
+        this.stamina = Math.min(this.maxStamina, this.stamina + amount);
     }
 }
