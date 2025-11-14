@@ -328,7 +328,7 @@ export class Game {
         // Process enemy turns
         this.enemies.forEach(enemy => {
             if (enemy.hp > 0) {
-                enemy.takeTurn(this.player, this.labyrinth, this.enemies);
+                enemy.takeTurn(this.player, this.labyrinth, this.enemies, this);
             }
         });
         

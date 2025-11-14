@@ -40,30 +40,81 @@ export class Enemy {
     
     getBaseStats() {
         const stats = {
-            'walker': { hp: 30, atk: 8, def: 3, spd: 5, xp: 15, gold: 5, symbol: 'W' },
-            'archer': { hp: 20, atk: 12, def: 2, spd: 6, xp: 20, gold: 8, symbol: 'A' },
-            'mage': { hp: 25, atk: 15, def: 1, spd: 4, xp: 25, gold: 10, symbol: 'M' },
-            'protector': { hp: 50, atk: 10, def: 8, spd: 3, xp: 35, gold: 15, symbol: 'P' },
-            'boss': { hp: 80, atk: 18, def: 10, spd: 4, xp: 100, gold: 50, symbol: 'B' }
+            'walker': { hp: 30, atk: 8, def: 3, spd: 5, xp: 15, gold: 5, symbol: 'W', range: 0 },
+            'archer': { hp: 20, atk: 12, def: 2, spd: 6, xp: 20, gold: 8, symbol: 'A', range: 4 },
+            'mage': { hp: 25, atk: 15, def: 1, spd: 4, xp: 25, gold: 10, symbol: 'M', range: 3 },
+            'protector': { hp: 50, atk: 10, def: 8, spd: 3, xp: 35, gold: 15, symbol: 'P', range: 0 },
+            'boss': { hp: 80, atk: 18, def: 10, spd: 4, xp: 100, gold: 50, symbol: 'B', range: 0 }
         };
         
         const stat = stats[this.type] || stats['walker'];
         this.symbol = stat.symbol;
+        this.range = stat.range || 0;
         return stat;
     }
     
-    takeTurn(player, labyrinth, allEnemies) {
+    takeTurn(player, labyrinth, allEnemies, game) {
         // Check line of sight to player
         const hasLOS = this.hasLineOfSight(player, labyrinth);
         
-        // Check if adjacent to player (attack)
+        // Check distance to player
         const distToPlayer = Math.abs(this.x - player.x) + Math.abs(this.y - player.y);
         
+        // Check if this enemy can use ranged attacks
+        const canRangedAttack = this.range > 0;
+        
+        // Adjacent melee attack
         if (distToPlayer === 1) {
-            // Already adjacent, attack
             const damage = Math.max(1, this.atk - player.def);
             player.takeDamage(damage);
+            game.renderer.showDamageNumber(player.x, player.y, damage, '#ffffff');
             console.log(`${this.type} attacks player for ${damage} damage`);
+            return;
+        }
+        
+        // Ranged attack if in range and has LOS
+        if (canRangedAttack && hasLOS && distToPlayer <= this.range && distToPlayer > 1) {
+            // Fire ranged attack
+            const damage = Math.max(1, Math.floor((this.atk - player.def) * 0.7)); // 70% of melee damage
+            player.takeDamage(damage);
+            
+            // Show projectile animation
+            game.renderer.showProjectile(this.x, this.y, player.x, player.y);
+            game.renderer.showDamageNumber(player.x, player.y, damage, '#ffaa00');
+            
+            console.log(`${this.type} shoots player for ${damage} damage`);
+            return;
+        }
+        
+        // Step back if ranged enemy and player is getting too close (within 2 tiles)
+        if (canRangedAttack && hasLOS && distToPlayer === 2) {
+            // Calculate direction away from player
+            const dx = this.x - player.x;
+            const dy = this.y - player.y;
+            
+            let moveX = 0;
+            let moveY = 0;
+            
+            // Prioritize moving away in the axis with most distance
+            if (Math.abs(dx) >= Math.abs(dy)) {
+                moveX = Math.sign(dx); // Move away horizontally
+            } else {
+                moveY = Math.sign(dy); // Move away vertically
+            }
+            
+            const newX = this.x + moveX;
+            const newY = this.y + moveY;
+            
+            const blocked = labyrinth.isWall(newX, newY) || 
+                           allEnemies.some(e => e !== this && e.hp > 0 && e.x === newX && e.y === newY);
+            
+            if (!blocked) {
+                this.x = newX;
+                this.y = newY;
+                console.log(`${this.type} steps back from player`);
+                return;
+            }
+            // If can't step back, stand ground and will shoot next turn
             return;
         }
         
@@ -150,5 +201,16 @@ export class Enemy {
         }
         
         return true;
+    }
+    
+    static fromSaveData(data) {
+        const enemy = new Enemy(data.x, data.y, data.type, data.floor);
+        enemy.hp = data.hp;
+        enemy.maxHp = data.maxHp;
+        enemy.atk = data.atk;
+        enemy.def = data.def;
+        enemy.spd = data.spd;
+        enemy.range = data.range || 0;
+        return enemy;
     }
 }
