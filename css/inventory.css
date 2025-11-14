@@ -66,7 +66,7 @@
 .mobile-bow-btn {
     display: none !important; /* Hidden by default, shown via JS */
     position: fixed;
-    bottom: 160px;
+    bottom: 20px;
     left: 20px;
     width: 50px;
     height: 50px;
@@ -97,7 +97,7 @@
 .mobile-magic-btn {
     display: none !important; /* Hidden by default, shown via JS */
     position: fixed;
-    bottom: 220px;
+    bottom: 80px;
     left: 20px;
     width: 50px;
     height: 50px;
