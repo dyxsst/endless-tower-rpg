@@ -386,7 +386,13 @@ export class Game {
         const healAmount = Math.floor(this.player.maxHp * 0.2);
         this.player.heal(healAmount);
         
-        this.showMessage(`MILESTONE FLOOR ${this.floor}! +${healAmount} HP`);
+        // Restore some resources on milestone (per GDD)
+        const staminaRestore = Math.floor(this.player.maxStamina * 0.5);
+        const manaRestore = Math.floor(this.player.maxMana * 0.5);
+        this.player.restoreStamina(staminaRestore);
+        this.player.restoreMana(manaRestore);
+        
+        this.showMessage(`MILESTONE FLOOR ${this.floor}! +${healAmount} HP, +${staminaRestore} Stamina, +${manaRestore} Mana`);
         
         // Show shop button after message
         setTimeout(() => {
