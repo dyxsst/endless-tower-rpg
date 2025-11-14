@@ -33,7 +33,7 @@
 .mobile-inventory-btn {
     display: none !important; /* Hidden by default, shown via JS */
     position: fixed;
-    bottom: 20px;
+    bottom: 80px;
     right: 20px;
     width: 50px;
     height: 50px;
@@ -49,7 +49,8 @@
 
 @media (max-width: 768px) {
     .mobile-inventory-btn,
-    .mobile-bow-btn {
+    .mobile-bow-btn,
+    .mobile-magic-btn {
         /* Will be shown via JS with display: flex !important */
         align-items: center;
         justify-content: center;
@@ -65,7 +66,7 @@
 .mobile-bow-btn {
     display: none !important; /* Hidden by default, shown via JS */
     position: fixed;
-    bottom: 80px;
+    bottom: 160px;
     left: 20px;
     width: 50px;
     height: 50px;
@@ -96,7 +97,7 @@
 .mobile-magic-btn {
     display: none !important; /* Hidden by default, shown via JS */
     position: fixed;
-    bottom: 140px;
+    bottom: 220px;
     left: 20px;
     width: 50px;
     height: 50px;
