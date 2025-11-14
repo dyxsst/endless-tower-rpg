@@ -59,3 +59,45 @@
     background: rgba(70, 70, 70, 0.9);
     border-color: #ffa500;
 }
+
+/* Bow button for mobile */
+.mobile-bow-btn {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    background: rgba(50, 50, 50, 0.8);
+    border: 2px solid #666;
+    border-radius: 50%;
+    color: #fff;
+    font-size: 24px;
+    z-index: 1000;
+    cursor: pointer;
+    user-select: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-bow-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+.mobile-bow-btn:active {
+    background: rgba(70, 70, 70, 0.9);
+    border-color: #ffa500;
+}
+
+.mobile-bow-btn.targeting {
+    background: rgba(255, 165, 0, 0.8);
+    border-color: #ffa500;
+    animation: pulse-bow 1s infinite;
+}
+
+@keyframes pulse-bow {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}

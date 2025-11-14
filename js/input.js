@@ -37,6 +37,23 @@ export class InputHandler {
             const dx = touch.clientX - touchStartX;
             const dy = touch.clientY - touchStartY;
             
+            // Check if in ranged targeting mode
+            if (this.game.rangedCombat && this.game.rangedCombat.targetingMode) {
+                // Determine swipe direction for shooting
+                const threshold = 30;
+                if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        // Horizontal swipe
+                        this.game.rangedCombat.selectDirection(dx > 0 ? 1 : -1, 0);
+                    } else {
+                        // Vertical swipe
+                        this.game.rangedCombat.selectDirection(0, dy > 0 ? 1 : -1);
+                    }
+                }
+                return;
+            }
+            
+            // Normal movement
             // Determine swipe direction
             const threshold = 30;
             if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
@@ -242,6 +259,19 @@ document.addEventListener('DOMContentLoaded', () => {
         mobileInvBtn.addEventListener('click', () => {
             if (window.game) {
                 window.game.openInventory();
+            }
+        });
+    }
+    
+    // Mobile bow button
+    const mobileBowBtn = document.getElementById('mobile-bow-btn');
+    if (mobileBowBtn) {
+        mobileBowBtn.addEventListener('click', () => {
+            if (window.game && window.game.rangedCombat) {
+                const success = window.game.rangedCombat.enterTargetingMode();
+                if (success) {
+                    mobileBowBtn.classList.add('targeting');
+                }
             }
         });
     }

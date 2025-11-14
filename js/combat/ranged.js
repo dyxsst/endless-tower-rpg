@@ -18,13 +18,27 @@ export class RangedCombat {
         
         this.targetingMode = true;
         this.targetDirection = null;
-        this.game.showMessage('Select direction to shoot (WASD/Arrows)');
+        
+        // Different message for mobile vs desktop
+        const isMobile = window.innerWidth <= 768;
+        if (isMobile) {
+            this.game.showMessage('Swipe to shoot!');
+        } else {
+            this.game.showMessage('Select direction to shoot (WASD/Arrows)');
+        }
+        
         return true;
     }
     
     exitTargetingMode() {
         this.targetingMode = false;
         this.targetDirection = null;
+        
+        // Remove mobile targeting indicator
+        const mobileBowBtn = document.getElementById('mobile-bow-btn');
+        if (mobileBowBtn) {
+            mobileBowBtn.classList.remove('targeting');
+        }
     }
     
     selectDirection(dx, dy) {
@@ -40,6 +54,12 @@ export class RangedCombat {
         
         const player = this.game.player;
         const { dx, dy } = this.targetDirection;
+        
+        // Remove mobile targeting indicator
+        const mobileBowBtn = document.getElementById('mobile-bow-btn');
+        if (mobileBowBtn) {
+            mobileBowBtn.classList.remove('targeting');
+        }
         
         // Get bow range (default 4 tiles)
         const range = player.getBowRange();
