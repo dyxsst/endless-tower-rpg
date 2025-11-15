@@ -8,7 +8,7 @@ export class Player {
         // Stats (GDD Base: HP 30, ATK 6, DEF 2, SPD 5, CRIT 5%)
         this.level = 1;
         this.xp = 0;
-        this.xpToLevel = 100; // GDD: 20 + 10*L, but starting at 100 for feel
+        this.xpToLevel = 30; // GDD: 20 + 10*L, level 2 at 30 XP (~3 kills)
         
         this.maxHp = 30;  // GDD base
         this.hp = 30;
@@ -129,7 +129,7 @@ export class Player {
     levelUp() {
         this.level++;
         this.xp -= this.xpToLevel;
-        this.xpToLevel = Math.floor(this.xpToLevel * 1.5);
+        this.xpToLevel = 20 + 10 * this.level; // GDD formula: 20 + 10*L
         
         // GDD Stat increases per level: HP +6, ATK +2, DEF +1, SPD +0.2
         this.maxHp += 6;

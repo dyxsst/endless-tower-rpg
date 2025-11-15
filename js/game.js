@@ -704,8 +704,8 @@ export class Game {
             // Boss: guaranteed Uncommon+ drop
             this.dropBossLoot(enemy.x, enemy.y);
         } else {
-            // Normal: 30% base + floor bonus, cap at 60%
-            const dropChance = Math.min(60, 30 + this.floor * 2);
+            // Normal: 50% base + floor bonus, cap at 80%
+            const dropChance = Math.min(80, 50 + this.floor * 3);
             if (Math.random() * 100 < dropChance) {
                 this.dropItem(enemy.x, enemy.y);
             }

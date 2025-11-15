@@ -60,9 +60,9 @@ export class Enemy {
         this.def = Math.floor(baseDEF * defMod);
         this.spd = Math.floor(baseSPD * 10) / 10; // Round to 1 decimal
         
-        // XP/Gold based on total HP (GDD formula)
-        this.xpValue = Math.max(5, Math.floor(this.maxHp / 10));
-        this.goldValue = Math.max(2, Math.floor(this.maxHp / 14));
+        // XP/Gold balanced for ~3 kills per level
+        this.xpValue = Math.floor(this.maxHp / 2);
+        this.goldValue = Math.floor(this.maxHp / 3);
     }
     
     getBaseStats() {
