@@ -41,6 +41,65 @@ export class RangedCombat {
         }
     }
     
+    selectTarget(enemy) {
+        if (!this.targetingMode) return;
+        
+        const player = this.game.player;
+        
+        // Check if enemy is in range and has LOS
+        const dist = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
+        const range = player.getBowRange();
+        
+        if (dist > range) {
+            this.game.showMessage('Out of range!', '#ff4444');
+            return;
+        }
+        
+        // Check if we have LOS to target
+        const hasLOS = this.checkLineOfSight(player.x, player.y, enemy.x, enemy.y);
+        if (!hasLOS) {
+            this.game.showMessage('No line of sight!', '#ff4444');
+            return;
+        }
+        
+        // Calculate direction to enemy
+        const dx = Math.sign(enemy.x - player.x);
+        const dy = Math.sign(enemy.y - player.y);
+        
+        this.targetDirection = { dx, dy };
+        this.fireArrow();
+        this.exitTargetingMode();
+    }
+    
+    checkLineOfSight(x1, y1, x2, y2) {
+        // Simple LOS check - no walls between points
+        const dx = Math.abs(x2 - x1);
+        const dy = Math.abs(y2 - y1);
+        const sx = x1 < x2 ? 1 : -1;
+        const sy = y1 < y2 ? 1 : -1;
+        let err = dx - dy;
+        
+        let x = x1;
+        let y = y1;
+        
+        while (true) {
+            if (x === x2 && y === y2) return true;
+            
+            // Check if current tile is a wall
+            if (this.game.labyrinth.isWall(x, y)) return false;
+            
+            const e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y += sy;
+            }
+        }
+    }
+    
     selectDirection(dx, dy) {
         if (!this.targetingMode) return;
         

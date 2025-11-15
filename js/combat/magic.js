@@ -81,7 +81,7 @@ export class MagicSystem {
         
         // Show message
         const isMobile = window.innerWidth < 768;
-        const instruction = isMobile ? 'Swipe to cast!' : 'Select direction (WASD/Arrows)';
+        const instruction = isMobile ? 'Tap an enemy to cast!' : 'Select direction (WASD/Arrows)';
         this.game.showMessage(`${spell.name}: ${instruction}`, '#aa44ff');
         
         // Add mobile targeting indicator
@@ -91,6 +91,63 @@ export class MagicSystem {
         }
         
         return true;
+    }
+    
+    selectTarget(enemy) {
+        if (!this.targetingMode || !this.activeSpell) return;
+        
+        const player = this.game.player;
+        const spell = this.spells[this.activeSpell];
+        
+        // Check if enemy is in range
+        const dist = Math.abs(enemy.x - player.x) + Math.abs(enemy.y - player.y);
+        if (dist > spell.range) {
+            this.game.showMessage('Out of range!', '#ff4444');
+            return;
+        }
+        
+        // Check LOS
+        const hasLOS = this.checkLineOfSight(player.x, player.y, enemy.x, enemy.y);
+        if (!hasLOS) {
+            this.game.showMessage('No line of sight!', '#ff4444');
+            return;
+        }
+        
+        // Calculate direction to enemy
+        const dx = Math.sign(enemy.x - player.x);
+        const dy = Math.sign(enemy.y - player.y);
+        
+        this.targetDirection = { dx, dy };
+        this.castSpell();
+    }
+    
+    checkLineOfSight(x1, y1, x2, y2) {
+        // Simple LOS check - no walls between points
+        const dx = Math.abs(x2 - x1);
+        const dy = Math.abs(y2 - y1);
+        const sx = x1 < x2 ? 1 : -1;
+        const sy = y1 < y2 ? 1 : -1;
+        let err = dx - dy;
+        
+        let x = x1;
+        let y = y1;
+        
+        while (true) {
+            if (x === x2 && y === y2) return true;
+            
+            // Check if current tile is a wall
+            if (this.game.labyrinth.isWall(x, y)) return false;
+            
+            const e2 = 2 * err;
+            if (e2 > -dy) {
+                err -= dy;
+                x += sx;
+            }
+            if (e2 < dx) {
+                err += dx;
+                y += sy;
+            }
+        }
     }
     
     selectDirection(dx, dy) {

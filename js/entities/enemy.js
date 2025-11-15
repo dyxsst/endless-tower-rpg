@@ -25,31 +25,54 @@ export class Enemy {
     
     initStats() {
         const baseStats = this.getBaseStats();
-        const floorMultiplier = 1 + (this.floor - 1) * 0.15;
+        const F = this.floor;
         
-        // Apply boss modifier if boss type (reduced from GDD for better balance)
+        // GDD Formula: HP = 20 + 6F + floor(F^1.15)
+        // GDD Formula: ATK = 5 + 1.6F
+        // GDD Formula: DEF = 1 + 0.6F
+        // GDD Formula: SPD = 4 + 0.15F
+        const baseHP = 20 + 6*F + Math.floor(Math.pow(F, 1.15));
+        const baseATK = 5 + 1.6*F;
+        const baseDEF = 1 + 0.6*F;
+        const baseSPD = 4 + 0.15*F;
+        
+        // Apply boss/elite modifiers per GDD
         const isBoss = this.type === 'boss';
-        const hpMod = isBoss ? 1.4 : 1.0;  // Reduced from 1.6
-        const atkMod = isBoss ? 1.15 : 1.0; // Reduced from 1.2
-        const defMod = isBoss ? 1.15 : 1.0; // Reduced from 1.2
+        const isElite = this.type === 'protector'; // Protector acts as elite
         
-        this.maxHp = Math.floor(baseStats.hp * floorMultiplier * hpMod);
+        let hpMod = 1.0;
+        let atkMod = 1.0;
+        let defMod = 1.0;
+        
+        if (isBoss) {
+            hpMod = 1.6;   // GDD Boss Mod
+            atkMod = 1.2;
+            defMod = 1.2;
+        } else if (isElite) {
+            hpMod = 1.35;  // GDD Elite Mod
+            atkMod = 1.2;
+            defMod = 1.2;
+        }
+        
+        this.maxHp = Math.floor(baseHP * hpMod);
         this.hp = this.maxHp;
-        this.atk = Math.floor(baseStats.atk * floorMultiplier * atkMod);
-        this.def = Math.floor(baseStats.def * floorMultiplier * defMod);
-        this.spd = baseStats.spd;
+        this.atk = Math.floor(baseATK * atkMod);
+        this.def = Math.floor(baseDEF * defMod);
+        this.spd = Math.floor(baseSPD * 10) / 10; // Round to 1 decimal
         
-        this.xpValue = Math.floor(baseStats.xp * floorMultiplier);
-        this.goldValue = Math.floor(baseStats.gold * floorMultiplier);
+        // XP/Gold based on total HP (GDD formula)
+        this.xpValue = Math.max(5, Math.floor(this.maxHp / 10));
+        this.goldValue = Math.max(2, Math.floor(this.maxHp / 14));
     }
     
     getBaseStats() {
+        // Visual and range properties only (stats now calculated via GDD formulas in initStats)
         const stats = {
-            'walker': { hp: 30, atk: 8, def: 3, spd: 5, xp: 15, gold: 5, symbol: '●', color: '#94a3b8', range: 0 },
-            'archer': { hp: 20, atk: 12, def: 2, spd: 6, xp: 20, gold: 8, symbol: '▲', color: '#22c55e', range: 4 },
-            'mage': { hp: 25, atk: 15, def: 1, spd: 4, xp: 25, gold: 10, symbol: '★', color: '#a855f7', range: 3 },
-            'protector': { hp: 50, atk: 10, def: 8, spd: 3, xp: 35, gold: 15, symbol: '▣', color: '#3b82f6', range: 0 },
-            'boss': { hp: 80, atk: 18, def: 10, spd: 4, xp: 100, gold: 50, symbol: '♛', color: '#ef4444', range: 0 }
+            'walker': { symbol: '●', color: '#94a3b8', range: 0 },
+            'archer': { symbol: '▲', color: '#22c55e', range: 4 },
+            'mage': { symbol: '★', color: '#a855f7', range: 3 },
+            'protector': { symbol: '▣', color: '#3b82f6', range: 0 },
+            'boss': { symbol: '♛', color: '#ef4444', range: 0 }
         };
         
         const stat = stats[this.type] || stats['walker'];

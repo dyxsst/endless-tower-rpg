@@ -5,17 +5,17 @@ export class Player {
         this.x = x;
         this.y = y;
         
-        // Stats
+        // Stats (GDD Base: HP 30, ATK 6, DEF 2, SPD 5, CRIT 5%)
         this.level = 1;
         this.xp = 0;
-        this.xpToLevel = 100;
+        this.xpToLevel = 100; // GDD: 20 + 10*L, but starting at 100 for feel
         
-        this.maxHp = 100;
-        this.hp = 100;
-        this.atk = 10;
-        this.def = 5;
-        this.spd = 5;
-        this.crit = 5; // percent
+        this.maxHp = 30;  // GDD base
+        this.hp = 30;
+        this.atk = 6;     // GDD base
+        this.def = 2;     // GDD base
+        this.spd = 5;     // GDD base
+        this.crit = 5;    // GDD base (percent)
         
         // Resources
         this.gold = 0;
@@ -131,12 +131,12 @@ export class Player {
         this.xp -= this.xpToLevel;
         this.xpToLevel = Math.floor(this.xpToLevel * 1.5);
         
-        // Stat increases
-        this.maxHp += 10;
+        // GDD Stat increases per level: HP +6, ATK +2, DEF +1, SPD +0.2
+        this.maxHp += 6;
         this.hp = this.maxHp;
         this.atk += 2;
         this.def += 1;
-        this.spd += 1;
+        this.spd += 0.2;
         
         // Restore resources
         this.stamina = this.maxStamina;

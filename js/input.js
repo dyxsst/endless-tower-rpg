@@ -5,9 +5,91 @@ export class InputHandler {
         this.setupTouch();
     }
     
+    screenToGrid(screenX, screenY) {
+        // Convert screen coordinates to grid coordinates
+        const canvas = document.getElementById('game-canvas');
+        const rect = canvas.getBoundingClientRect();
+        const canvasX = screenX - rect.left;
+        const canvasY = screenY - rect.top;
+        
+        const renderer = this.game.renderer;
+        const tileSize = renderer.tileSize;
+        
+        // Calculate grid position based on camera offset
+        let gridX, gridY;
+        
+        if (renderer.isMobile) {
+            // Mobile uses smooth camera
+            const roundedCameraX = Math.round(renderer.cameraX);
+            const roundedCameraY = Math.round(renderer.cameraY);
+            gridX = Math.floor(canvasX / tileSize) + roundedCameraX;
+            gridY = Math.floor(canvasY / tileSize) + roundedCameraY;
+        } else {
+            // Desktop centers the labyrinth
+            const labyrinth = this.game.labyrinth;
+            let offsetX, offsetY;
+            
+            if (labyrinth.width < renderer.viewportWidth) {
+                offsetX = Math.floor((renderer.viewportWidth - labyrinth.width) / 2);
+            } else {
+                offsetX = 0;
+            }
+            
+            if (labyrinth.height < renderer.viewportHeight) {
+                offsetY = Math.floor((renderer.viewportHeight - labyrinth.height) / 2);
+            } else {
+                offsetY = 0;
+            }
+            
+            gridX = Math.floor(canvasX / tileSize) - offsetX;
+            gridY = Math.floor(canvasY / tileSize) - offsetY;
+        }
+        
+        // Check if within labyrinth bounds
+        if (gridX < 0 || gridX >= this.game.labyrinth.width || 
+            gridY < 0 || gridY >= this.game.labyrinth.height) {
+            return null;
+        }
+        
+        return { x: gridX, y: gridY };
+    }
+    
     setupKeyboard() {
         document.addEventListener('keydown', (e) => {
             this.handleKeyPress(e);
+        });
+        
+        // Add click support for desktop tap-on-enemy
+        const canvas = document.getElementById('game-canvas');
+        canvas.addEventListener('click', (e) => {
+            if (!this.game.gameRunning) return;
+            
+            // Check if in targeting mode (bow or magic)
+            if (this.game.rangedCombat && this.game.rangedCombat.targetingMode) {
+                const gridPos = this.screenToGrid(e.clientX, e.clientY);
+                if (gridPos) {
+                    const enemy = this.game.getEnemyAt(gridPos.x, gridPos.y);
+                    if (enemy) {
+                        this.game.rangedCombat.selectTarget(enemy);
+                    } else {
+                        this.game.showMessage('Click an enemy to shoot!', '#ff4444');
+                    }
+                }
+                return;
+            }
+            
+            if (this.game.magic && this.game.magic.targetingMode) {
+                const gridPos = this.screenToGrid(e.clientX, e.clientY);
+                if (gridPos) {
+                    const enemy = this.game.getEnemyAt(gridPos.x, gridPos.y);
+                    if (enemy) {
+                        this.game.magic.selectTarget(enemy);
+                    } else {
+                        this.game.showMessage('Click an enemy to cast!', '#ff4444');
+                    }
+                }
+                return;
+            }
         });
     }
     
@@ -36,18 +118,23 @@ export class InputHandler {
             const touch = e.changedTouches[0];
             const dx = touch.clientX - touchStartX;
             const dy = touch.clientY - touchStartY;
+            const swipeThreshold = 30;
+            
+            // Check if this is a tap (minimal movement) vs swipe
+            const isTap = Math.abs(dx) < swipeThreshold && Math.abs(dy) < swipeThreshold;
             
             // Check if in ranged targeting mode
             if (this.game.rangedCombat && this.game.rangedCombat.targetingMode) {
-                // Determine swipe direction for shooting
-                const threshold = 30;
-                if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
-                    if (Math.abs(dx) > Math.abs(dy)) {
-                        // Horizontal swipe
-                        this.game.rangedCombat.selectDirection(dx > 0 ? 1 : -1, 0);
-                    } else {
-                        // Vertical swipe
-                        this.game.rangedCombat.selectDirection(0, dy > 0 ? 1 : -1);
+                if (isTap) {
+                    // Tap on enemy to shoot
+                    const gridPos = this.screenToGrid(touch.clientX, touch.clientY);
+                    if (gridPos) {
+                        const enemy = this.game.getEnemyAt(gridPos.x, gridPos.y);
+                        if (enemy) {
+                            this.game.rangedCombat.selectTarget(enemy);
+                        } else {
+                            this.game.showMessage('Tap an enemy to shoot!', '#ff4444');
+                        }
                     }
                 }
                 return;
@@ -55,24 +142,23 @@ export class InputHandler {
             
             // Check if in magic targeting mode
             if (this.game.magic && this.game.magic.targetingMode) {
-                // Determine swipe direction for casting
-                const threshold = 30;
-                if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
-                    if (Math.abs(dx) > Math.abs(dy)) {
-                        // Horizontal swipe
-                        this.game.magic.selectDirection(dx > 0 ? 1 : -1, 0);
-                    } else {
-                        // Vertical swipe
-                        this.game.magic.selectDirection(0, dy > 0 ? 1 : -1);
+                if (isTap) {
+                    // Tap on enemy to cast spell
+                    const gridPos = this.screenToGrid(touch.clientX, touch.clientY);
+                    if (gridPos) {
+                        const enemy = this.game.getEnemyAt(gridPos.x, gridPos.y);
+                        if (enemy) {
+                            this.game.magic.selectTarget(enemy);
+                        } else {
+                            this.game.showMessage('Tap an enemy to cast!', '#ff4444');
+                        }
                     }
                 }
                 return;
             }
             
-            // Normal movement
-            // Determine swipe direction
-            const threshold = 30;
-            if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
+            // Normal movement - swipe to move
+            if (!isTap) {
                 if (Math.abs(dx) > Math.abs(dy)) {
                     // Horizontal swipe
                     this.game.playerAction({
