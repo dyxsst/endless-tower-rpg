@@ -141,12 +141,13 @@ export class Game {
             
             this.enemies = [];
             
-            // Get all floor tiles for spawning
+            // Get all floor tiles for spawning (including spawn pads)
             const floorTiles = [];
             for (let y = 0; y < this.labyrinth.height; y++) {
                 for (let x = 0; x < this.labyrinth.width; x++) {
                     const tile = this.labyrinth.getTile(x, y);
-                    if (tile === 0 || tile === 2) { // Floor or start (not exit)
+                    // Floor (0), Start (2), or Spawn Pad (4) - not exit (3) or walls (1)
+                    if (tile === 0 || tile === 2 || tile === 4) {
                         // Don't spawn too close to player
                         const dist = Math.abs(x - this.player.x) + Math.abs(y - this.player.y);
                         if (dist > 8) {
