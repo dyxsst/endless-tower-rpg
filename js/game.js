@@ -63,6 +63,9 @@ export class Game {
         // Create player
         this.player = new Player(0, 0);
         
+        // Give starting equipment
+        await this.giveStartingEquipment();
+        
         // Generate first floor
         await this.generateFloor(1);
         
@@ -78,6 +81,28 @@ export class Game {
         }
         
         this.updateUI();
+    }
+    
+    async giveStartingEquipment() {
+        // Import Item class
+        const { Item } = await import('./items/item.js');
+        
+        // Create starter weapon: Wooden Sword (+2 ATK)
+        const starterWeapon = new Item('weapon', 'common', 0);
+        starterWeapon.name = 'Wooden Sword';
+        starterWeapon.stats = { atk: 2 };
+        this.player.equip(starterWeapon);
+        
+        // Create starter armor: Cloth Armor (+1 DEF, +3 HP)
+        const starterArmor = new Item('armor', 'common', 0);
+        starterArmor.name = 'Cloth Armor';
+        starterArmor.stats = { def: 1, hp: 3 };
+        this.player.equip(starterArmor);
+        
+        console.log('Starting equipment equipped:', {
+            weapon: starterWeapon.name,
+            armor: starterArmor.name
+        });
     }
     
     async loadGame() {
