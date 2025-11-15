@@ -697,6 +697,13 @@ export class Game {
         this.player.heal(healAmount);
         this.renderer.showDamageNumber(this.player.x, this.player.y, healAmount, '#44ff44');
         
+        // First kill guaranteed bow drop (if player doesn't have one)
+        if (!this.player.bow && this.turnCount < 20) {
+            this.dropBow(enemy.x, enemy.y);
+            console.log('First kill: Guaranteed bow drop!');
+            return; // Skip normal drop logic
+        }
+        
         // Item drop chance
         const isBoss = enemy.type === 'boss';
         
@@ -704,14 +711,30 @@ export class Game {
             // Boss: guaranteed Uncommon+ drop
             this.dropBossLoot(enemy.x, enemy.y);
         } else {
-            // Normal: 50% base + floor bonus, cap at 80%
-            const dropChance = Math.min(80, 50 + this.floor * 3);
+            // Normal: 60% base + floor bonus, cap at 85%
+            const dropChance = Math.min(85, 60 + this.floor * 4);
             if (Math.random() * 100 < dropChance) {
                 this.dropItem(enemy.x, enemy.y);
             }
         }
         
         console.log(`Enemy defeated! +${enemy.xpValue} XP, +${enemy.goldValue} gold, +${healAmount} HP`);
+    }
+    
+    dropBow(x, y) {
+        import('./items/item.js').then(module => {
+            const { Item } = module;
+            
+            // Guaranteed common bow for first kill
+            const item = new Item('bow', 'common', this.floor);
+            
+            item.x = x;
+            item.y = y;
+            
+            this.items.push(item);
+            this.showMessage(`First kill! Found: ${item.name}`, item.getColor());
+            console.log(`First kill guaranteed drop: ${item.name}`);
+        });
     }
     
     dropBossLoot(x, y) {
