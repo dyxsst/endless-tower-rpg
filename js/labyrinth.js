@@ -6,6 +6,7 @@ export class Labyrinth {
         this.grid = [];
         this.startPos = { x: 0, y: 0 };
         this.exitPos = { x: 0, y: 0 };
+        this.spawnPads = []; // Array of {x, y, usesLeft} - GDD spawn grinding mechanic
     }
     
     generate() {
@@ -19,6 +20,9 @@ export class Labyrinth {
         
         // Place start and exit
         this.placeStartAndExit();
+        
+        // Place spawn pads (GDD grinding mechanic)
+        this.placeSpawnPads();
     }
     
     simpleGeneration() {
@@ -181,6 +185,58 @@ export class Labyrinth {
     
     isExit(x, y) {
         return this.grid[y][x] === 3;
+    }
+    
+    isSpawnPad(x, y) {
+        return this.grid[y][x] === 4;
+    }
+    
+    placeSpawnPads() {
+        // Place 2-3 spawn pads per floor in open areas (GDD)
+        const padCount = 2 + Math.floor(Math.random() * 2); // 2-3 pads
+        
+        // Find all floor tiles far from start and exit
+        const candidates = [];
+        for (let y = 1; y < this.height - 1; y++) {
+            for (let x = 1; x < this.width - 1; x++) {
+                if (this.grid[y][x] !== 0) continue;
+                
+                // Must be floor with some open space around it
+                let openNeighbors = 0;
+                for (let dy = -1; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        if (dx === 0 && dy === 0) continue;
+                        if (this.isInBounds(x + dx, y + dy) && this.grid[y + dy][x + dx] === 0) {
+                            openNeighbors++;
+                        }
+                    }
+                }
+                
+                // Need at least 4 open neighbors
+                if (openNeighbors < 4) continue;
+                
+                // Not too close to start or exit
+                const distToStart = Math.abs(x - this.startPos.x) + Math.abs(y - this.startPos.y);
+                const distToExit = Math.abs(x - this.exitPos.x) + Math.abs(y - this.exitPos.y);
+                
+                if (distToStart > 8 && distToExit > 8) {
+                    candidates.push({ x, y });
+                }
+            }
+        }
+        
+        // Place pads
+        for (let i = 0; i < Math.min(padCount, candidates.length); i++) {
+            const idx = Math.floor(Math.random() * candidates.length);
+            const pos = candidates.splice(idx, 1)[0];
+            
+            this.grid[pos.y][pos.x] = 4; // 4 = spawn pad
+            this.spawnPads.push({
+                x: pos.x,
+                y: pos.y,
+                usesLeft: 3 // Each pad can be used 3 times per GDD
+            });
+        }
     }
     
     getTile(x, y) {

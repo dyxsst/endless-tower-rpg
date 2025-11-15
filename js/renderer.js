@@ -32,6 +32,7 @@ export class Renderer {
             floor: '#555',
             start: '#4a4',
             exit: '#fa4',
+            spawnPad: '#a4f', // Purple for spawn pads
             player: '#4af',
             enemy: '#f44',
             item: '#ff4',
@@ -288,11 +289,23 @@ export class Renderer {
                     case 3: // Exit
                         this.ctx.fillStyle = this.colors.exit;
                         break;
+                    case 4: // Spawn Pad
+                        this.ctx.fillStyle = this.colors.spawnPad;
+                        break;
                     default:
                         this.ctx.fillStyle = '#000';
                 }
                 
                 this.ctx.fillRect(screenX, screenY, this.tileSize, this.tileSize);
+                
+                // Draw spawn pad symbol if visible
+                if (tile === 4 && isVisible) {
+                    this.ctx.fillStyle = '#fff';
+                    this.ctx.font = 'bold 12px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.textBaseline = 'middle';
+                    this.ctx.fillText('◉', screenX + this.tileSize/2, screenY + this.tileSize/2);
+                }
                 
                 // Draw grid lines
                 this.ctx.strokeStyle = '#222';

@@ -211,6 +211,60 @@ export class Game {
         }
     }
     
+    activateSpawnPad(x, y) {
+        // Find this spawn pad
+        const pad = this.labyrinth.spawnPads.find(p => p.x === x && p.y === y);
+        if (!pad || pad.usesLeft <= 0) {
+            this.showMessage('Spawn pad depleted', '#888');
+            return;
+        }
+        
+        // Spawn 1-2 enemies near the pad (GDD)
+        import('./entities/enemy.js').then(module => {
+            const { Enemy } = module;
+            
+            const spawnCount = 1 + Math.floor(Math.random() * 2); // 1-2 enemies
+            const spawned = [];
+            
+            // Find empty tiles around pad
+            const candidates = [];
+            for (let dy = -2; dy <= 2; dy++) {
+                for (let dx = -2; dx <= 2; dx++) {
+                    if (dx === 0 && dy === 0) continue;
+                    const checkX = x + dx;
+                    const checkY = y + dy;
+                    
+                    if (this.labyrinth.isInBounds(checkX, checkY) && 
+                        !this.labyrinth.isWall(checkX, checkY) &&
+                        !this.getEnemyAt(checkX, checkY) &&
+                        !(checkX === this.player.x && checkY === this.player.y)) {
+                        candidates.push({ x: checkX, y: checkY });
+                    }
+                }
+            }
+            
+            // Spawn enemies
+            for (let i = 0; i < Math.min(spawnCount, candidates.length); i++) {
+                const idx = Math.floor(Math.random() * candidates.length);
+                const pos = candidates.splice(idx, 1)[0];
+                
+                const type = this.chooseEnemyType();
+                const enemy = new Enemy(pos.x, pos.y, type, this.floor);
+                this.enemies.push(enemy);
+                spawned.push(enemy);
+            }
+            
+            // Decrement uses
+            pad.usesLeft--;
+            
+            // Show message
+            const usesMsg = pad.usesLeft > 0 ? ` (${pad.usesLeft} uses left)` : ' (depleted)';
+            this.showMessage(`Spawn pad activated! +${spawned.length} enemies${usesMsg}`, '#aa44ff');
+            
+            console.log(`Spawn pad activated: ${spawned.length} enemies spawned, ${pad.usesLeft} uses left`);
+        });
+    }
+    
     spawnItems() {
         // TODO: Implement item spawning
         this.items = [];
@@ -266,6 +320,11 @@ export class Game {
         if (this.labyrinth.isExit(newX, newY)) {
             this.ascendFloor();
             return true;
+        }
+        
+        // Check for spawn pad (GDD grinding mechanic)
+        if (this.labyrinth.isSpawnPad(newX, newY)) {
+            this.activateSpawnPad(newX, newY);
         }
         
         // Check for items
