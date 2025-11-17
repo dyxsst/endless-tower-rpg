@@ -101,21 +101,8 @@ export class Enemy {
             return;
         }
         
-        // Ranged attack if in range and has LOS
-        if (canRangedAttack && hasLOS && distToPlayer <= this.range && distToPlayer > 1) {
-            // Fire ranged attack
-            const damage = Math.max(1, Math.floor((this.atk - player.def) * 0.7)); // 70% of melee damage
-            player.takeDamage(damage);
-            
-            // Show projectile animation
-            game.renderer.showProjectile(this.x, this.y, player.x, player.y);
-            game.renderer.showDamageNumber(player.x, player.y, damage, '#ffaa00');
-            
-            console.log(`${this.type} shoots player for ${damage} damage`);
-            return;
-        }
-        
         // Step back if ranged enemy and player is getting too close (within 2 tiles)
+        // Check this BEFORE shooting so they kite instead of standing still
         if (canRangedAttack && hasLOS && distToPlayer === 2) {
             // Calculate direction away from player
             const dx = this.x - player.x;
@@ -143,7 +130,20 @@ export class Enemy {
                 console.log(`${this.type} steps back from player`);
                 return;
             }
-            // If can't step back, stand ground and will shoot next turn
+            // If can't step back, shoot instead (cornered)
+        }
+        
+        // Ranged attack if in range and has LOS
+        if (canRangedAttack && hasLOS && distToPlayer <= this.range && distToPlayer > 1) {
+            // Fire ranged attack
+            const damage = Math.max(1, Math.floor((this.atk - player.def) * 0.7)); // 70% of melee damage
+            player.takeDamage(damage);
+            
+            // Show projectile animation
+            game.renderer.showProjectile(this.x, this.y, player.x, player.y);
+            game.renderer.showDamageNumber(player.x, player.y, damage, '#ffaa00');
+            
+            console.log(`${this.type} shoots player for ${damage} damage`);
             return;
         }
         
